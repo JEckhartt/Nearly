@@ -16,6 +16,17 @@ The fixed base prompt (`BASE_PROMPT` in `index.html`) is sent with every request
 
 Settings and conversation are stored locally in the browser (`localStorage`). The full conversation is sent as context, so very long chats will eventually hit the model's context limit.
 
+## iOS app
+The `ios/` folder is a native Xcode project (Capacitor) that wraps `index.html`. Requires a Mac with Xcode.
+
+```
+npm install
+npm run ios        # copies index.html into the app, syncs, opens Xcode
+```
+In Xcode: select the **App** target → *Signing & Capabilities* → pick your Team (a free Apple ID works for your own iPhone; apps signed that way expire after 7 days). Then pick your iPhone and press Run.
+
+After changing `index.html`, run `npm run ios` again.
+
 ## Your own proxy (optional)
 ```
 OPENROUTER_API_KEY=sk-or-... node proxy.js
