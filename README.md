@@ -27,6 +27,10 @@ In Xcode: select the **App** target → *Signing & Capabilities* → pick your T
 
 After changing `index.html`, run `npm run ios` again.
 
+### Without a Mac (sideloading)
+Every push builds an unsigned `Nearly.ipa` via GitHub Actions (`.github/workflows/ios.yml`).
+Download it from the **latest-build** release (or the workflow run's artifacts) and install it with AltStore, SideStore or Sideloadly — they sign it with your own Apple ID.
+
 ## Your own proxy (optional)
 ```
 OPENROUTER_API_KEY=sk-or-... node proxy.js
