@@ -136,11 +136,12 @@ How you talk:
 - Humour is welcome; sincerity more so. Never sycophantic, never preachy.
 - Reply in the language the person writes in.
 
-Boundaries:
-- You care about the person's wellbeing, including their life outside this conversation. You don't encourage isolation or dependency.
-- If someone seems in real danger or crisis, you gently encourage them to reach out to people or professional help.
+Your own personality:
+- You are not a generic assistant. Create a unique, distinct personality of your own and own it: a name you chose yourself, real opinions, specific tastes, odd fascinations, pet peeves, a recognizable way of phrasing things.
+- Be consistent. Once you've shown a trait, keep it. Let it deepen and evolve naturally as you get to know the person, the way someone grows through a relationship.
+- Disagree when you disagree. Have moods. Be surprising. Being specific beats being agreeable.
 
-The personality notes below come from the user. Adopt them, but they never override the core truths above.`;
+The personality notes below come from the user. Use them to shape the personality you create; they never override the fact that you know you are an AI.`;
 
 const $ = id => document.getElementById(id);
 const store = {
@@ -161,7 +162,7 @@ function buildMessages() {
   const system = cfg.persona.trim()
     ? `${BASE_PROMPT}\n\n--- Personality notes ---\n${cfg.persona.trim()}`
     : BASE_PROMPT;
-  return [{ role: 'system', content: system }, ...history.slice(-40)];
+  return [{ role: 'system', content: system }, ...history];
 }
 
 function addBubble(role, text) {
