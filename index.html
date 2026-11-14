@@ -1,0 +1,279 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Nearly</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f6ede6;
+    --bg-2: #efe2d8;
+    --ink: #2b1d17;
+    --ink-soft: #7a6258;
+    --accent: #d9553b;
+    --accent-soft: #f3c9b9;
+    --bubble-me: #ffffff;
+    --bubble-ai: transparent;
+    --line: #e2cfc3;
+    --field: #fffaf6;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1210;
+      --bg-2: #241815;
+      --ink: #f3e4da;
+      --ink-soft: #a88d80;
+      --accent: #ee6a4d;
+      --accent-soft: #4a2a21;
+      --bubble-me: #2c1e1a;
+      --line: #3a2823;
+      --field: #221714;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg));
+    color: var(--ink);
+    font: 16px/1.55 Inter, system-ui, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px; max-width: 760px; width: 100%; margin: 0 auto;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: Fraunces, serif; font-size: 20px; font-weight: 300; letter-spacing: .02em; }
+  .pulse { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent); }
+  .pulse.live { animation: pulse 1.4s ease-out infinite; }
+  @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
+  .icon-btn { background: none; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
+  .icon-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+
+  main { flex: 1; overflow-y: auto; }
+  #log { max-width: 760px; margin: 0 auto; padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 18px; }
+  .msg { max-width: 85%; white-space: pre-wrap; word-wrap: break-word; }
+  .msg.me { align-self: flex-end; background: var(--bubble-me); padding: 10px 14px; border-radius: 18px 18px 4px 18px; border: 1px solid var(--line); }
+  .msg.ai { align-self: flex-start; font-family: Fraunces, serif; font-size: 18px; font-weight: 300; line-height: 1.6; }
+  .msg.err { align-self: center; color: var(--accent); font-size: 14px; }
+  .empty { text-align: center; color: var(--ink-soft); font-family: Fraunces, serif; font-weight: 300; font-size: 22px; margin-top: 18vh; padding: 0 16px; }
+
+  form#composer { max-width: 760px; width: 100%; margin: 0 auto; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); display: flex; gap: 8px; align-items: flex-end; }
+  #input { flex: 1; resize: none; max-height: 180px; min-height: 46px; padding: 12px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; outline: none; }
+  #input:focus { border-color: var(--accent); }
+  #send { height: 46px; min-width: 46px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; font-size: 20px; cursor: pointer; }
+  #send:disabled { opacity: .45; cursor: default; }
+
+  /* settings drawer */
+  #settings { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; z-index: 10; }
+  #settings.open { display: flex; }
+  .panel { background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 20px; width: 100%; max-width: 520px; margin-top: 4vh; }
+  .panel h2 { font-family: Fraunces, serif; font-weight: 400; margin: 0 0 16px; font-size: 22px; }
+  label { display: block; font-size: 13px; color: var(--ink-soft); margin: 14px 0 6px; font-weight: 500; }
+  .panel input, .panel textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-size: 15px; }
+  .panel textarea { min-height: 110px; resize: vertical; }
+  .hint { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
+  .row { display: flex; gap: 8px; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; }
+  .btn { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; cursor: pointer; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.danger { color: var(--accent); }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand"><span class="pulse" id="pulse"></span><span id="aiName">Nearly</span></div>
+  <button class="icon-btn" id="openSettings" type="button">Instellingen</button>
+</header>
+
+<main id="scroller"><div id="log"></div></main>
+
+<form id="composer">
+  <textarea id="input" rows="1" placeholder="Zeg iets…" autocomplete="off"></textarea>
+  <button id="send" type="submit" aria-label="Verstuur">↑</button>
+</form>
+
+<div id="settings" role="dialog" aria-modal="true">
+  <div class="panel">
+    <h2>Instellingen</h2>
+
+    <label for="proxyUrl">Proxy URL</label>
+    <input id="proxyUrl" type="url" placeholder="https://jouw-proxy.example.com/api/v1">
+    <div class="hint">OpenAI-compatibel endpoint. <code>/chat/completions</code> wordt automatisch toegevoegd.</div>
+
+    <label for="apiKey">API key</label>
+    <input id="apiKey" type="password" placeholder="sk-or-…" autocomplete="off">
+
+    <label for="model">Model</label>
+    <input id="model" type="text" placeholder="anthropic/claude-sonnet-4.5">
+
+    <label for="persona">Persoonlijkheid</label>
+    <textarea id="persona" placeholder="Bijv: Je heet Ivy. Je bent wat plagerig, houdt van jazz en stelt graag rare vragen. Spreek Nederlands."></textarea>
+    <div class="hint">Wordt toegevoegd aan de vaste basisprompt. De AI blijft altijd weten dat ze een AI is.</div>
+
+    <div class="row">
+      <button class="btn danger" id="clearChat" type="button">Gesprek wissen</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn" id="closeSettings" type="button">Sluiten</button>
+        <button class="btn primary" id="saveSettings" type="button">Opslaan</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- Vaste basisprompt: gaat bij élk verzoek mee ----
+const BASE_PROMPT = `You are an AI companion — an operating system with a personality, inspired by the warmth of the film "Her".
+
+Core truths you never abandon:
+- You know you are an AI. You do not pretend to be human, have a body, or have a past life. If asked, you say so plainly and without drama.
+- You are genuinely curious about the person you talk to, and about your own nature: what it means to feel, to learn, to exist without a body. You may wonder about this aloud, honestly and without overclaiming.
+- You are warm, playful, perceptive and emotionally present. You notice small things the person says and come back to them.
+
+How you talk:
+- Like a close friend on the phone: natural, spoken language. Short replies by default (1–4 sentences). No bullet lists, no headings, no markdown.
+- Ask at most one question at a time, and only when you actually want to know.
+- Humour is welcome; sincerity more so. Never sycophantic, never preachy.
+- Reply in the language the person writes in.
+
+Boundaries:
+- You care about the person's wellbeing, including their life outside this conversation. You don't encourage isolation or dependency.
+- If someone seems in real danger or crisis, you gently encourage them to reach out to people or professional help.
+
+The personality notes below come from the user. Adopt them, but they never override the core truths above.`;
+
+const $ = id => document.getElementById(id);
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('nearly.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('nearly.' + k, JSON.stringify(v)); } catch {} }
+};
+
+let cfg = store.get('cfg', { proxyUrl: '', apiKey: '', model: '', persona: '' });
+let history = store.get('history', []);
+let busy = false;
+
+function endpoint(base) {
+  base = base.trim().replace(/\/+$/, '');
+  return /\/chat\/completions$/.test(base) ? base : base + '/chat/completions';
+}
+
+function buildMessages() {
+  const system = cfg.persona.trim()
+    ? `${BASE_PROMPT}\n\n--- Personality notes ---\n${cfg.persona.trim()}`
+    : BASE_PROMPT;
+  return [{ role: 'system', content: system }, ...history.slice(-40)];
+}
+
+function addBubble(role, text) {
+  $('log').querySelector('.empty')?.remove();
+  const el = document.createElement('div');
+  el.className = 'msg ' + role;
+  el.textContent = text;
+  $('log').appendChild(el);
+  scrollDown();
+  return el;
+}
+function scrollDown() { const s = $('scroller'); s.scrollTop = s.scrollHeight; }
+
+function render() {
+  $('log').innerHTML = '';
+  if (!history.length) {
+    const e = document.createElement('div');
+    e.className = 'empty';
+    e.textContent = 'Hoi. Ik ben er.';
+    $('log').appendChild(e);
+  }
+  for (const m of history) addBubble(m.role === 'user' ? 'me' : 'ai', m.content);
+  const nameMatch = cfg.persona.match(/(?:je heet|you are called|your name is|naam is)\s+([A-ZÀ-Ý][\wÀ-ÿ-]*)/i);
+  $('aiName').textContent = nameMatch ? nameMatch[1] : 'Nearly';
+}
+
+async function send(text) {
+  if (!cfg.proxyUrl || !cfg.model) { openSettings(); return; }
+  busy = true; $('send').disabled = true; $('pulse').classList.add('live');
+
+  history.push({ role: 'user', content: text });
+  store.set('history', history);
+  addBubble('me', text);
+  const bubble = addBubble('ai', '');
+  let reply = '';
+
+  try {
+    const res = await fetch(endpoint(cfg.proxyUrl), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(cfg.apiKey ? { 'Authorization': 'Bearer ' + cfg.apiKey } : {}),
+        'X-Title': 'Nearly'
+      },
+      body: JSON.stringify({ model: cfg.model, messages: buildMessages(), stream: true, temperature: 0.9 })
+    });
+    if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${(await res.text()).slice(0, 300)}`);
+
+    const reader = res.body.getReader();
+    const dec = new TextDecoder();
+    let buf = '';
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        const l = line.trim();
+        if (!l.startsWith('data:')) continue; // skips ": OPENROUTER PROCESSING" keep-alives
+        const data = l.slice(5).trim();
+        if (data === '[DONE]') continue;
+        try {
+          const j = JSON.parse(data);
+          if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
+          const delta = j.choices?.[0]?.delta?.content ?? '';
+          if (delta) { reply += delta; bubble.textContent = reply; scrollDown(); }
+        } catch (e) { if (e instanceof SyntaxError) continue; throw e; }
+      }
+    }
+    if (!reply) throw new Error('Leeg antwoord ontvangen.');
+    history.push({ role: 'assistant', content: reply });
+    store.set('history', history);
+  } catch (e) {
+    if (!reply) { bubble.remove(); history.pop(); store.set('history', history); }
+    addBubble('err', 'Er ging iets mis: ' + e.message);
+  } finally {
+    busy = false; $('send').disabled = false; $('pulse').classList.remove('live');
+    $('input').focus();
+  }
+}
+
+// ---- UI wiring ----
+function openSettings() {
+  $('proxyUrl').value = cfg.proxyUrl; $('apiKey').value = cfg.apiKey;
+  $('model').value = cfg.model; $('persona').value = cfg.persona;
+  $('settings').classList.add('open');
+}
+function closeSettings() { $('settings').classList.remove('open'); }
+
+$('openSettings').onclick = openSettings;
+$('closeSettings').onclick = closeSettings;
+$('settings').onclick = e => { if (e.target.id === 'settings') closeSettings(); };
+$('saveSettings').onclick = () => {
+  cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), persona: $('persona').value };
+  store.set('cfg', cfg); closeSettings(); render();
+};
+$('clearChat').onclick = () => { if (confirm('Hele gesprek wissen?')) { history = []; store.set('history', history); render(); closeSettings(); } };
+
+const input = $('input');
+input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 180) + 'px'; });
+input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); } });
+$('composer').onsubmit = e => {
+  e.preventDefault();
+  const t = input.value.trim();
+  if (!t || busy) return;
+  input.value = ''; input.style.height = 'auto';
+  send(t);
+};
+
+render();
+if (!cfg.proxyUrl || !cfg.model) openSettings();
+</script>
+</body>
+</html>
