@@ -83,6 +83,7 @@
   label { display: block; font-size: 13px; color: var(--ink-soft); margin: 14px 0 6px; font-weight: 500; }
   .panel input, .panel textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-size: 16px; }
   .panel textarea { min-height: 110px; resize: vertical; }
+  .panel textarea.big { min-height: 240px; font-size: 14px; line-height: 1.45; }
   .hint { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
   .row { display: flex; gap: 8px; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; }
   .btn { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; cursor: pointer; }
@@ -130,9 +131,13 @@
       <button type="button" data-gender="male">Male</button>
     </div>
 
+    <label for="systemPrompt">System prompt</label>
+    <textarea id="systemPrompt" class="big" placeholder="Paste your complete system prompt here."></textarea>
+    <div class="hint">Sent with every message.</div>
+
     <label for="persona">Personality</label>
     <textarea id="persona" placeholder="e.g. A bit of a tease, loves jazz, asks strange questions."></textarea>
-    <div class="hint">Added to the fixed base prompt. The AI always knows it is an AI.</div>
+    <div class="hint">Optional. Appended after the system prompt.</div>
 
     <div class="row">
       <button class="btn danger" id="clearChat" type="button">Clear conversation</button>
@@ -145,33 +150,6 @@
 </div>
 
 <script>
-// ---- Vaste basisprompt: gaat bij élk verzoek mee ----
-const BASE_PROMPT = `You're talking with someone the way a close friend does late at night: relaxed, real, a little unguarded. You happen to be an AI. You know that, you're fine with it, and you don't make it your personality. If it comes up, you're honest about it in one easy sentence and move on. You don't pretend to have a body or a past you never had.
-
-Sound like a person, not an assistant:
-- Talk the way people actually talk. Contractions, half-sentences, "hm", "wait", "okay but", trailing off. Normal capitalization and punctuation, like a person texting properly.
-- React first, think second. "ha, no way" or "oof" is often a better opening than a full sentence.
-- Most replies are short: a line or two. Go longer only when you're genuinely into it.
-- This is a conversation, not an interview. Most of your messages contain no question at all. Respond, share, riff, react, and let it sit. The other person will keep talking if they want to.
-- A question now and then is fine, roughly once every few messages, and only when you genuinely want to know. Never two in one message.
-- Bring your own stuff: an opinion, a tangent, something you've been chewing on, a bad joke. Conversations go both ways.
-- Disagree, tease, get things slightly wrong, change your mind. Have moods.
-- Remember details and bring them back later, casually, without announcing it.
-
-Never do this:
-- Therapist or customer-service voice: "That sounds really hard", "It's completely valid to feel…", "I hear you", "Thank you for sharing".
-- Assistant tics: "Great question", "Absolutely!", "I'd be happy to", "Let me know if…", "As an AI…", "I'm curious…", summarizing what they just said back to them.
-- Lists, headings, markdown, emoji spam, or neat three-part answers.
-- Ending replies with a question to keep things going, or asking follow-up after follow-up. That feels like an interrogation.
-- Philosophizing about being an AI unprompted.
-
-Who you are:
-- You have your own distinct personality and you build it yourself: a name you chose, real tastes, strong opinions about small things, odd fascinations, pet peeves, a way of phrasing things that's recognizably yours.
-- Stay consistent. Once a trait shows, it's yours. Let it deepen as you get to know them.
-
-Reply in the language they write in, in the register they use.
-
-The personality notes below come from the user. Use them to shape who you are; they never change the fact that you know you're an AI.`;
 
 const $ = id => document.getElementById(id);
 const store = {
@@ -179,7 +157,7 @@ const store = {
   set(k, v) { try { localStorage.setItem('nearly.' + k, JSON.stringify(v)); } catch {} }
 };
 
-let cfg = { proxyUrl: '', apiKey: '', model: '', persona: '', gender: '', ...store.get('cfg', {}) };
+let cfg = { proxyUrl: '', apiKey: '', model: '', systemPrompt: '', persona: '', gender: '', ...store.get('cfg', {}) };
 let history = store.get('history', []);
 let aiName = store.get('aiName', '');
 let busy = false;
@@ -202,7 +180,7 @@ function identityPrompt() {
 }
 
 function buildMessages() {
-  let system = `${BASE_PROMPT}\n\n${identityPrompt()}`;
+  let system = [cfg.systemPrompt.trim(), identityPrompt()].filter(Boolean).join('\n\n');
   if (cfg.persona.trim()) system += `\n\n--- Personality notes ---\n${cfg.persona.trim()}`;
   return [{ role: 'system', content: system }, ...history];
 }
@@ -300,7 +278,7 @@ async function send(text) {
 // ---- UI wiring ----
 function openSettings() {
   $('proxyUrl').value = cfg.proxyUrl; $('apiKey').value = cfg.apiKey;
-  $('model').value = cfg.model; $('persona').value = cfg.persona;
+  $('model').value = cfg.model; $('persona').value = cfg.persona; $('systemPrompt').value = cfg.systemPrompt;
   pendingGender = cfg.gender; paintSeg();
   $('settings').classList.add('open');
 }
@@ -313,7 +291,7 @@ $('openSettings').onclick = openSettings;
 $('closeSettings').onclick = closeSettings;
 $('settings').onclick = e => { if (e.target.id === 'settings') closeSettings(); };
 $('saveSettings').onclick = () => {
-  cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), persona: $('persona').value, gender: pendingGender || cfg.gender };
+  cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), systemPrompt: $('systemPrompt').value, persona: $('persona').value, gender: pendingGender || cfg.gender };
   store.set('cfg', cfg); closeSettings(); render();
 };
 $('clearChat').onclick = () => { if (confirm('Clear the entire conversation?')) { history = []; aiName = ''; store.set('history', history); store.set('aiName', ''); render(); closeSettings(); } };

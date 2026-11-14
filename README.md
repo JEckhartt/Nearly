@@ -12,7 +12,7 @@ An AI companion in the spirit of *Her*: warm, curious, and always aware that it 
    - **Personality** — optional; sent after the fixed base prompt
 4. Talk.
 
-The fixed base prompt (`BASE_PROMPT` in `index.html`) is sent with every request and makes sure the AI knows it is an AI and builds a unique personality of its own. The AI picks its own name, which appears in the header. "Clear conversation" also clears the name, so a new personality starts fresh. Gender can be changed later in Settings.
+You paste your own **System prompt** in Settings; it is sent with every request, followed by a short identity block (gender + name handling) and your optional Personality notes. The AI picks its own name, which appears in the header. "Clear conversation" also clears the name, so a new personality starts fresh. Gender can be changed later in Settings.
 
 Settings and conversation are stored locally in the browser (`localStorage`). The full conversation is sent as context, so very long chats will eventually hit the model's context limit.
 
