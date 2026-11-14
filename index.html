@@ -68,6 +68,17 @@
   /* settings drawer */
   #settings { position: fixed; inset: 0; background: rgba(0,0,0,.35); display: none; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; z-index: 10; }
   #settings.open { display: flex; }
+  #onboard { position: fixed; inset: 0; z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 16px; text-align: center;
+    background: radial-gradient(120% 80% at 50% 30%, var(--bg-2), var(--bg)); }
+  #onboard.open { display: flex; }
+  #onboard h1 { font-family: Fraunces, serif; font-weight: 300; font-size: clamp(26px, 6vw, 38px); margin: 0; }
+  #onboard p { color: var(--ink-soft); margin: -12px 0 0; }
+  .choices { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
+  .choice { width: 150px; padding: 26px 0; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-family: Fraunces, serif; font-size: 20px; cursor: pointer; transition: border-color .2s, transform .2s; }
+  .choice:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .seg { display: flex; gap: 8px; }
+  .seg button { flex: 1; padding: 9px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; cursor: pointer; }
+  .seg button.on { border-color: var(--accent); background: var(--accent-soft); }
   .panel { background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 20px; width: 100%; max-width: 520px; margin-top: 4vh; }
   .panel h2 { font-family: Fraunces, serif; font-weight: 400; margin: 0 0 16px; font-size: 22px; }
   label { display: block; font-size: 13px; color: var(--ink-soft); margin: 14px 0 6px; font-weight: 500; }
@@ -93,6 +104,15 @@
   <button id="send" type="submit" aria-label="Verstuur">↑</button>
 </form>
 
+<div id="onboard">
+  <h1>Wie wil je ontmoeten?</h1>
+  <p>De rest bedenkt de AI zelf.</p>
+  <div class="choices">
+    <button class="choice" type="button" data-gender="female">Een vrouw</button>
+    <button class="choice" type="button" data-gender="male">Een man</button>
+  </div>
+</div>
+
 <div id="settings" role="dialog" aria-modal="true">
   <div class="panel">
     <h2>Instellingen</h2>
@@ -106,6 +126,12 @@
 
     <label for="model">Model</label>
     <input id="model" type="text" placeholder="anthropic/claude-sonnet-4.5">
+
+    <label>Gender</label>
+    <div class="seg" id="genderSeg">
+      <button type="button" data-gender="female">Vrouw</button>
+      <button type="button" data-gender="male">Man</button>
+    </div>
 
     <label for="persona">Persoonlijkheid</label>
     <textarea id="persona" placeholder="Bijv: Je heet Ivy. Je bent wat plagerig, houdt van jazz en stelt graag rare vragen. Spreek Nederlands."></textarea>
@@ -149,8 +175,9 @@ const store = {
   set(k, v) { try { localStorage.setItem('nearly.' + k, JSON.stringify(v)); } catch {} }
 };
 
-let cfg = store.get('cfg', { proxyUrl: '', apiKey: '', model: '', persona: '' });
+let cfg = { proxyUrl: '', apiKey: '', model: '', persona: '', gender: '', ...store.get('cfg', {}) };
 let history = store.get('history', []);
+let aiName = store.get('aiName', '');
 let busy = false;
 
 function endpoint(base) {
@@ -158,11 +185,29 @@ function endpoint(base) {
   return /\/chat\/completions$/.test(base) ? base : base + '/chat/completions';
 }
 
+const NAME_TAG = /\[\[name:\s*([^\]]+?)\s*\]\]/i;
+
+function identityPrompt() {
+  const g = cfg.gender === 'male'
+    ? 'You present as a man. Your self-image, voice and the way people refer to you (he/him) follow from that.'
+    : 'You present as a woman. Your self-image, voice and the way people refer to you (she/her) follow from that.';
+  const n = aiName
+    ? `Your name is ${aiName}. You chose it; keep it. If you ever deliberately change it, append [[name:NewName]] at the very end of that message.`
+    : 'You have not chosen a name yet. Pick one that truly fits the personality you are creating, early and naturally in the conversation. In the message where you first tell the user your name, append the tag [[name:YourName]] at the very end. The tag is hidden from the user; never mention it.';
+  return `--- Identity ---\n${g}\n${n}`;
+}
+
 function buildMessages() {
-  const system = cfg.persona.trim()
-    ? `${BASE_PROMPT}\n\n--- Personality notes ---\n${cfg.persona.trim()}`
-    : BASE_PROMPT;
+  let system = `${BASE_PROMPT}\n\n${identityPrompt()}`;
+  if (cfg.persona.trim()) system += `\n\n--- Personality notes ---\n${cfg.persona.trim()}`;
   return [{ role: 'system', content: system }, ...history];
+}
+
+// Strip the hidden name tag (and any half-streamed tag at the end)
+function visible(t, final) {
+  t = t.replace(new RegExp(NAME_TAG.source, 'gi'), '');
+  if (!final) t = t.replace(/\[\[?[^\]]*$/, '');
+  return t.trimEnd();
 }
 
 function addBubble(role, text) {
@@ -185,8 +230,7 @@ function render() {
     $('log').appendChild(e);
   }
   for (const m of history) addBubble(m.role === 'user' ? 'me' : 'ai', m.content);
-  const nameMatch = cfg.persona.match(/(?:je heet|you are called|your name is|naam is)\s+([A-ZÀ-Ý][\wÀ-ÿ-]*)/i);
-  $('aiName').textContent = nameMatch ? nameMatch[1] : 'Nearly';
+  $('aiName').textContent = aiName || 'Nearly';
 }
 
 async function send(text) {
@@ -229,12 +273,16 @@ async function send(text) {
           const j = JSON.parse(data);
           if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
           const delta = j.choices?.[0]?.delta?.content ?? '';
-          if (delta) { reply += delta; bubble.textContent = reply; scrollDown(); }
+          if (delta) { reply += delta; bubble.textContent = visible(reply); scrollDown(); }
         } catch (e) { if (e instanceof SyntaxError) continue; throw e; }
       }
     }
     if (!reply) throw new Error('Leeg antwoord ontvangen.');
-    history.push({ role: 'assistant', content: reply });
+    const tag = reply.match(NAME_TAG);
+    if (tag) { aiName = tag[1].replace(/[^\p{L}\p{M}' -]/gu, '').trim().slice(0, 30) || aiName; store.set('aiName', aiName); render(); }
+    const clean = visible(reply, true);
+    bubble.textContent = clean;
+    history.push({ role: 'assistant', content: clean });
     store.set('history', history);
   } catch (e) {
     if (!reply) { bubble.remove(); history.pop(); store.set('history', history); }
@@ -249,18 +297,22 @@ async function send(text) {
 function openSettings() {
   $('proxyUrl').value = cfg.proxyUrl; $('apiKey').value = cfg.apiKey;
   $('model').value = cfg.model; $('persona').value = cfg.persona;
+  pendingGender = cfg.gender; paintSeg();
   $('settings').classList.add('open');
 }
 function closeSettings() { $('settings').classList.remove('open'); }
+let pendingGender = cfg.gender;
+function paintSeg() { for (const b of $('genderSeg').children) b.classList.toggle('on', b.dataset.gender === pendingGender); }
+$('genderSeg').onclick = e => { const g = e.target.dataset?.gender; if (g) { pendingGender = g; paintSeg(); } };
 
 $('openSettings').onclick = openSettings;
 $('closeSettings').onclick = closeSettings;
 $('settings').onclick = e => { if (e.target.id === 'settings') closeSettings(); };
 $('saveSettings').onclick = () => {
-  cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), persona: $('persona').value };
+  cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), persona: $('persona').value, gender: pendingGender || cfg.gender };
   store.set('cfg', cfg); closeSettings(); render();
 };
-$('clearChat').onclick = () => { if (confirm('Hele gesprek wissen?')) { history = []; store.set('history', history); render(); closeSettings(); } };
+$('clearChat').onclick = () => { if (confirm('Hele gesprek wissen?')) { history = []; aiName = ''; store.set('history', history); store.set('aiName', ''); render(); closeSettings(); } };
 
 const input = $('input');
 input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 180) + 'px'; });
@@ -273,8 +325,15 @@ $('composer').onsubmit = e => {
   send(t);
 };
 
+for (const b of document.querySelectorAll('#onboard .choice')) b.onclick = () => {
+  cfg.gender = b.dataset.gender; store.set('cfg', cfg);
+  $('onboard').classList.remove('open');
+  if (!cfg.proxyUrl || !cfg.model) openSettings();
+};
+
 render();
-if (!cfg.proxyUrl || !cfg.model) openSettings();
+if (!cfg.gender) $('onboard').classList.add('open');
+else if (!cfg.proxyUrl || !cfg.model) openSettings();
 </script>
 </body>
 </html>

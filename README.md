@@ -13,6 +13,8 @@ Een AI-gezelschap in de geest van *Her*: warm, nieuwsgierig, en zich er altijd v
 
 De vaste basisprompt (`BASE_PROMPT` in `index.html`) gaat bij elk verzoek mee en legt vast dat de AI weet dat ze een AI is. De persoonlijkheid kan die kern niet overschrijven. Noem een naam ("Je heet Ivy") en die verschijnt bovenin.
 
+Bij de eerste start kies je of de AI een man of vrouw is (later aan te passen in Instellingen). De AI kiest zelf een naam; die verschijnt bovenin. "Gesprek wissen" wist ook de naam, dan begint er een nieuwe persoonlijkheid.
+
 Instellingen en gesprek blijven lokaal in de browser (`localStorage`).
 
 ## Eigen proxy (optioneel)
