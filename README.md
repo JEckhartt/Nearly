@@ -1,24 +1,23 @@
 # Nearly
 
-Een AI-gezelschap in de geest van *Her*: warm, nieuwsgierig, en zich er altijd van bewust dat ze een AI is.
+An AI companion in the spirit of *Her*: warm, curious, and always aware that it is an AI.
 
-## Gebruik
-1. Open `index.html` in je browser (of host 'm statisch).
-2. Vul in bij **Instellingen**:
-   - **Proxy URL** — OpenAI-compatibel endpoint, bv. `https://jouw-proxy/api/v1` (`/chat/completions` wordt zelf toegevoegd)
-   - **API key** — je OpenRouter key (leeg laten als je proxy de key zelf toevoegt)
-   - **Model** — bv. `anthropic/claude-sonnet-4.5`
-   - **Persoonlijkheid** — optioneel; wordt ná de vaste basisprompt meegestuurd
-3. Praten.
+## Usage
+1. Open `index.html` in your browser (or host it statically).
+2. On first launch, pick **Female** or **Male**.
+3. Fill in **Settings**:
+   - **Proxy URL** — OpenAI-compatible endpoint, e.g. `https://your-proxy/api/v1` (`/chat/completions` is appended automatically)
+   - **API key** — your OpenRouter key (leave empty if your proxy adds the key itself)
+   - **Model** — e.g. `anthropic/claude-sonnet-4.5`
+   - **Personality** — optional; sent after the fixed base prompt
+4. Talk.
 
-De vaste basisprompt (`BASE_PROMPT` in `index.html`) gaat bij elk verzoek mee en legt vast dat de AI weet dat ze een AI is. De persoonlijkheid kan die kern niet overschrijven. Noem een naam ("Je heet Ivy") en die verschijnt bovenin.
+The fixed base prompt (`BASE_PROMPT` in `index.html`) is sent with every request and makes sure the AI knows it is an AI and builds a unique personality of its own. The AI picks its own name, which appears in the header. "Clear conversation" also clears the name, so a new personality starts fresh. Gender can be changed later in Settings.
 
-Bij de eerste start kies je of de AI een man of vrouw is (later aan te passen in Instellingen). De AI kiest zelf een naam; die verschijnt bovenin. "Gesprek wissen" wist ook de naam, dan begint er een nieuwe persoonlijkheid.
+Settings and conversation are stored locally in the browser (`localStorage`). The full conversation is sent as context, so very long chats will eventually hit the model's context limit.
 
-Instellingen en gesprek blijven lokaal in de browser (`localStorage`).
-
-## Eigen proxy (optioneel)
+## Your own proxy (optional)
 ```
 OPENROUTER_API_KEY=sk-or-... node proxy.js
 ```
-Proxy URL: `http://localhost:8787/api/v1`. Zo blijft je key uit de browser.
+Proxy URL: `http://localhost:8787/api/v1`. Keeps your key out of the browser.

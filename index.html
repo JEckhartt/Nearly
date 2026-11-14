@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="nl">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -71,8 +71,6 @@
   #onboard { position: fixed; inset: 0; z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 16px; text-align: center;
     background: radial-gradient(120% 80% at 50% 30%, var(--bg-2), var(--bg)); }
   #onboard.open { display: flex; }
-  #onboard h1 { font-family: Fraunces, serif; font-weight: 300; font-size: clamp(26px, 6vw, 38px); margin: 0; }
-  #onboard p { color: var(--ink-soft); margin: -12px 0 0; }
   .choices { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
   .choice { width: 150px; padding: 26px 0; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-family: Fraunces, serif; font-size: 20px; cursor: pointer; transition: border-color .2s, transform .2s; }
   .choice:hover { border-color: var(--accent); transform: translateY(-2px); }
@@ -94,32 +92,30 @@
 <body>
 <header>
   <div class="brand"><span class="pulse" id="pulse"></span><span id="aiName">Nearly</span></div>
-  <button class="icon-btn" id="openSettings" type="button">Instellingen</button>
+  <button class="icon-btn" id="openSettings" type="button">Settings</button>
 </header>
 
 <main id="scroller"><div id="log"></div></main>
 
 <form id="composer">
-  <textarea id="input" rows="1" placeholder="Zeg iets…" autocomplete="off"></textarea>
-  <button id="send" type="submit" aria-label="Verstuur">↑</button>
+  <textarea id="input" rows="1" placeholder="Say something…" autocomplete="off"></textarea>
+  <button id="send" type="submit" aria-label="Send">↑</button>
 </form>
 
 <div id="onboard">
-  <h1>Wie wil je ontmoeten?</h1>
-  <p>De rest bedenkt de AI zelf.</p>
   <div class="choices">
-    <button class="choice" type="button" data-gender="female">Een vrouw</button>
-    <button class="choice" type="button" data-gender="male">Een man</button>
+    <button class="choice" type="button" data-gender="female">Female</button>
+    <button class="choice" type="button" data-gender="male">Male</button>
   </div>
 </div>
 
 <div id="settings" role="dialog" aria-modal="true">
   <div class="panel">
-    <h2>Instellingen</h2>
+    <h2>Settings</h2>
 
     <label for="proxyUrl">Proxy URL</label>
-    <input id="proxyUrl" type="url" placeholder="https://jouw-proxy.example.com/api/v1">
-    <div class="hint">OpenAI-compatibel endpoint. <code>/chat/completions</code> wordt automatisch toegevoegd.</div>
+    <input id="proxyUrl" type="url" placeholder="https://your-proxy.example.com/api/v1">
+    <div class="hint">OpenAI-compatible endpoint. <code>/chat/completions</code> is appended automatically.</div>
 
     <label for="apiKey">API key</label>
     <input id="apiKey" type="password" placeholder="sk-or-…" autocomplete="off">
@@ -129,19 +125,19 @@
 
     <label>Gender</label>
     <div class="seg" id="genderSeg">
-      <button type="button" data-gender="female">Vrouw</button>
-      <button type="button" data-gender="male">Man</button>
+      <button type="button" data-gender="female">Female</button>
+      <button type="button" data-gender="male">Male</button>
     </div>
 
-    <label for="persona">Persoonlijkheid</label>
-    <textarea id="persona" placeholder="Bijv: Je heet Ivy. Je bent wat plagerig, houdt van jazz en stelt graag rare vragen. Spreek Nederlands."></textarea>
-    <div class="hint">Wordt toegevoegd aan de vaste basisprompt. De AI blijft altijd weten dat ze een AI is.</div>
+    <label for="persona">Personality</label>
+    <textarea id="persona" placeholder="e.g. A bit of a tease, loves jazz, asks strange questions."></textarea>
+    <div class="hint">Added to the fixed base prompt. The AI always knows it is an AI.</div>
 
     <div class="row">
-      <button class="btn danger" id="clearChat" type="button">Gesprek wissen</button>
+      <button class="btn danger" id="clearChat" type="button">Clear conversation</button>
       <div style="display:flex;gap:8px">
-        <button class="btn" id="closeSettings" type="button">Sluiten</button>
-        <button class="btn primary" id="saveSettings" type="button">Opslaan</button>
+        <button class="btn" id="closeSettings" type="button">Close</button>
+        <button class="btn primary" id="saveSettings" type="button">Save</button>
       </div>
     </div>
   </div>
@@ -226,7 +222,7 @@ function render() {
   if (!history.length) {
     const e = document.createElement('div');
     e.className = 'empty';
-    e.textContent = 'Hoi. Ik ben er.';
+    e.textContent = 'Hi. I\'m here.';
     $('log').appendChild(e);
   }
   for (const m of history) addBubble(m.role === 'user' ? 'me' : 'ai', m.content);
@@ -277,7 +273,7 @@ async function send(text) {
         } catch (e) { if (e instanceof SyntaxError) continue; throw e; }
       }
     }
-    if (!reply) throw new Error('Leeg antwoord ontvangen.');
+    if (!reply) throw new Error('Received an empty response.');
     const tag = reply.match(NAME_TAG);
     if (tag) { aiName = tag[1].replace(/[^\p{L}\p{M}' -]/gu, '').trim().slice(0, 30) || aiName; store.set('aiName', aiName); render(); }
     const clean = visible(reply, true);
@@ -286,7 +282,7 @@ async function send(text) {
     store.set('history', history);
   } catch (e) {
     if (!reply) { bubble.remove(); history.pop(); store.set('history', history); }
-    addBubble('err', 'Er ging iets mis: ' + e.message);
+    addBubble('err', 'Something went wrong: ' + e.message);
   } finally {
     busy = false; $('send').disabled = false; $('pulse').classList.remove('live');
     $('input').focus();
@@ -312,7 +308,7 @@ $('saveSettings').onclick = () => {
   cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), persona: $('persona').value, gender: pendingGender || cfg.gender };
   store.set('cfg', cfg); closeSettings(); render();
 };
-$('clearChat').onclick = () => { if (confirm('Hele gesprek wissen?')) { history = []; aiName = ''; store.set('history', history); store.set('aiName', ''); render(); closeSettings(); } };
+$('clearChat').onclick = () => { if (confirm('Clear the entire conversation?')) { history = []; aiName = ''; store.set('history', history); store.set('aiName', ''); render(); closeSettings(); } };
 
 const input = $('input');
 input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 180) + 'px'; });

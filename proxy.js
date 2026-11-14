@@ -1,6 +1,6 @@
-// Minimal OpenRouter proxy (geen dependencies, Node 18+).
+// Minimal OpenRouter proxy (no dependencies, Node 18+).
 // Start: OPENROUTER_API_KEY=sk-or-... node proxy.js
-// Proxy URL in de app: http://localhost:8787/api/v1  (API key-veld mag dan leeg blijven)
+// Proxy URL in the app: http://localhost:8787/api/v1  (API key field can stay empty)
 const http = require('http');
 const PORT = process.env.PORT || 8787;
 const KEY = process.env.OPENROUTER_API_KEY || '';
@@ -28,4 +28,4 @@ http.createServer(async (req, res) => {
   } catch (e) {
     res.writeHead(502).end(JSON.stringify({ error: { message: e.message } }));
   }
-}).listen(PORT, () => console.log(`Proxy op http://localhost:${PORT}/api/v1`));
+}).listen(PORT, () => console.log(`Proxy on http://localhost:${PORT}/api/v1`));
