@@ -1,100 +1,173 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="original">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
 <title>Nearly</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <style>
-  :root {
-    --bg: #f6ede6;
-    --bg-2: #efe2d8;
-    --ink: #2b1d17;
-    --ink-soft: #7a6258;
-    --accent: #d9553b;
-    --accent-soft: #f3c9b9;
-    --bubble-me: #ffffff;
-    --bubble-ai: transparent;
-    --line: #e2cfc3;
-    --field: #fffaf6;
+  /* ---------- Themes ---------- */
+  :root, [data-theme="original"] {
+    color-scheme: light dark;
+    --bg: #f6ede6; --bg-2: #efe2d8; --ink: #2b1d17; --ink-soft: #7a6258;
+    --accent: #d9553b; --accent-soft: #f3c9b9;
+    --bubble-me: #ffffff; --line: #e2cfc3; --field: #fffaf6; --card: #fffaf6;
   }
   @media (prefers-color-scheme: dark) {
-    :root {
-      --bg: #1a1210;
-      --bg-2: #241815;
-      --ink: #f3e4da;
-      --ink-soft: #a88d80;
-      --accent: #ee6a4d;
-      --accent-soft: #4a2a21;
-      --bubble-me: #2c1e1a;
-      --line: #3a2823;
-      --field: #221714;
+    [data-theme="original"] {
+      --bg: #1a1210; --bg-2: #241815; --ink: #f3e4da; --ink-soft: #a88d80;
+      --accent: #ee6a4d; --accent-soft: #4a2a21;
+      --bubble-me: #2c1e1a; --line: #3a2823; --field: #221714; --card: #221714;
     }
   }
+  [data-theme="light"] {
+    color-scheme: light;
+    --bg: #ffffff; --bg-2: #f3f3f6; --ink: #121214; --ink-soft: #6c6c74;
+    --accent: #3d63f5; --accent-soft: #dfe6ff;
+    --bubble-me: #f0f0f4; --line: #e4e4ea; --field: #f7f7fa; --card: #f7f7fa;
+  }
+  [data-theme="dark"] {
+    color-scheme: dark;
+    --bg: #000000; --bg-2: #000000; --ink: #f2f2f2; --ink-soft: #8a8a90;
+    --accent: #ff6a4d; --accent-soft: #2a1510;
+    --bubble-me: #161616; --line: #222222; --field: #0c0c0c; --card: #0c0c0c;
+  }
+
+  /* ---------- Text style variables (set from JS) ---------- */
+  :root {
+    --ai-font: 'Fraunces', Georgia, serif; --me-font: 'Inter', system-ui, sans-serif;
+    --fs: 18px; --fw: 300; --lh: 1.6; --ls: 0em; --fst: normal; --deco: none;
+    --c1: #d9553b; --c2: #7b3fe4; --angle: 135deg; --glowc: var(--accent);
+  }
+
   * { box-sizing: border-box; }
   html, body { height: 100%; height: 100dvh; margin: 0; overscroll-behavior: none; -webkit-tap-highlight-color: transparent; }
   body {
     background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg));
+    background-color: var(--bg);
     color: var(--ink);
-    font: 16px/1.55 Inter, system-ui, sans-serif;
+    font: 16px/1.55 'Inter', system-ui, -apple-system, sans-serif;
     display: flex; flex-direction: column;
   }
-  header {
-    padding-top: max(14px, env(safe-area-inset-top)) !important;
+  button { font: inherit; color: inherit; }
+
+  /* ---------- Chat ---------- */
+  header.top {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 14px 16px; max-width: 760px; width: 100%; margin: 0 auto;
+    padding: max(14px, env(safe-area-inset-top)) 16px 14px; max-width: 760px; width: 100%; margin: 0 auto;
   }
-  .brand { display: flex; align-items: center; gap: 10px; font-family: Fraunces, serif; font-size: 20px; font-weight: 300; letter-spacing: .02em; }
-  .pulse { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 var(--accent); }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: var(--ai-font); font-size: 20px; font-weight: 400; letter-spacing: .02em; }
+  .pulse { width: 12px; height: 12px; border-radius: 50%; background: var(--accent); }
   .pulse.live { animation: pulse 1.4s ease-out infinite; }
   @keyframes pulse { 0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 60%, transparent); } 100% { box-shadow: 0 0 0 12px transparent; } }
-  .icon-btn { background: none; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 14px; cursor: pointer; }
-  .icon-btn:hover { color: var(--ink); border-color: var(--ink-soft); }
+  .pill { background: none; border: 1px solid var(--line); color: var(--ink-soft); border-radius: 999px; padding: 6px 12px; font-size: 14px; cursor: pointer; }
+  .pill:hover { color: var(--ink); border-color: var(--ink-soft); }
 
   main { flex: 1; overflow-y: auto; }
   #log { max-width: 760px; margin: 0 auto; padding: 8px 16px 24px; display: flex; flex-direction: column; gap: 18px; }
-  .msg { max-width: 85%; white-space: pre-wrap; word-wrap: break-word; }
-  .msg.me { align-self: flex-end; background: var(--bubble-me); padding: 10px 14px; border-radius: 18px 18px 4px 18px; border: 1px solid var(--line); }
-  .msg.ai { align-self: flex-start; font-family: Fraunces, serif; font-size: 18px; font-weight: 300; line-height: 1.6; }
+  .msg { max-width: 85%; white-space: pre-wrap; overflow-wrap: anywhere; }
+  .msg.me { align-self: flex-end; background: var(--bubble-me); padding: 10px 14px; border-radius: 18px 18px 4px 18px; border: 1px solid var(--line); font-family: var(--me-font); }
+  .msg.ai { align-self: flex-start; }
+  .msg.ai .txt {
+    display: block; font-family: var(--ai-font); font-size: var(--fs); font-weight: var(--fw);
+    line-height: var(--lh); letter-spacing: var(--ls); font-style: var(--fst);
+    text-decoration: var(--deco); text-underline-offset: .22em; text-decoration-thickness: from-font;
+  }
+  .msg.ai .txt:empty { display: none; }
+  body[data-color="solid"] .msg.ai .txt { color: var(--c1); text-decoration-color: var(--c1); }
+  body[data-color="gradient"] .msg.ai .txt {
+    background: linear-gradient(var(--angle), var(--c1), var(--c2));
+    -webkit-background-clip: text; background-clip: text;
+    color: transparent; -webkit-text-fill-color: transparent; text-decoration-color: var(--c1);
+  }
+  body.glow .msg.ai .txt { text-shadow: 0 0 16px color-mix(in srgb, var(--glowc) 55%, transparent); }
+  body.ai-bubble .msg.ai { background: var(--bubble-me); border: 1px solid var(--line); padding: 10px 14px; border-radius: 18px 18px 18px 4px; }
   .msg.err { align-self: center; color: var(--accent); font-size: 14px; }
-  .empty { text-align: center; color: var(--ink-soft); font-family: Fraunces, serif; font-weight: 300; font-size: 22px; margin-top: 18vh; padding: 0 16px; }
+  .empty { text-align: center; color: var(--ink-soft); font-family: var(--ai-font); font-weight: 300; font-size: 22px; margin-top: 18vh; padding: 0 16px; }
+
+  figure.gen { margin: 10px 0 0; }
+  figure.gen img { display: block; max-width: min(100%, 420px); border-radius: 14px; border: 1px solid var(--line); cursor: zoom-in; }
+  figure.gen .wait { width: 260px; max-width: 100%; aspect-ratio: 1; border-radius: 14px; border: 1px solid var(--line);
+    background: linear-gradient(110deg, var(--field) 30%, var(--accent-soft) 50%, var(--field) 70%); background-size: 250% 100%;
+    animation: shimmer 1.6s linear infinite; display: grid; place-items: center; color: var(--ink-soft); font-size: 13px; }
+  @keyframes shimmer { to { background-position: -150% 0; } }
+  #lightbox { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; padding: 16px; }
+  #lightbox.open { display: flex; }
+  #lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; }
 
   form#composer { max-width: 760px; width: 100%; margin: 0 auto; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); display: flex; gap: 8px; align-items: flex-end; }
-  #input { flex: 1; resize: none; max-height: 180px; min-height: 46px; padding: 12px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; outline: none; }
+  #input { flex: 1; resize: none; max-height: 180px; min-height: 46px; padding: 12px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-family: var(--me-font); outline: none; }
   #input:focus { border-color: var(--accent); }
   #send { height: 46px; min-width: 46px; border-radius: 50%; border: 0; background: var(--accent); color: #fff; font-size: 20px; cursor: pointer; }
   #send:disabled { opacity: .45; cursor: default; }
 
-  /* settings drawer */
-  #settings { position: fixed; inset: 0; padding-top: max(16px, env(safe-area-inset-top)) !important; background: rgba(0,0,0,.35); display: none; align-items: flex-start; justify-content: center; padding: 16px; overflow-y: auto; z-index: 10; }
-  #settings.open { display: flex; }
-  #onboard { position: fixed; inset: 0; z-index: 20; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 28px; padding: 16px; text-align: center;
-    background: radial-gradient(120% 80% at 50% 30%, var(--bg-2), var(--bg)); }
+  /* ---------- Onboarding ---------- */
+  #onboard { position: fixed; inset: 0; z-index: 25; display: none; align-items: center; justify-content: center; gap: 14px; padding: 16px; flex-wrap: wrap;
+    background: radial-gradient(120% 80% at 50% 30%, var(--bg-2), var(--bg)); background-color: var(--bg); }
   #onboard.open { display: flex; }
-  .choices { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; }
-  .choice { width: 150px; padding: 26px 0; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-family: Fraunces, serif; font-size: 20px; cursor: pointer; transition: border-color .2s, transform .2s; }
+  .choice { width: 150px; padding: 26px 0; border-radius: 22px; border: 1px solid var(--line); background: var(--field); font-family: 'Fraunces', Georgia, serif; font-size: 20px; cursor: pointer; transition: border-color .2s, transform .2s; }
   .choice:hover { border-color: var(--accent); transform: translateY(-2px); }
-  .seg { display: flex; gap: 8px; }
-  .seg button { flex: 1; padding: 9px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; cursor: pointer; }
-  .seg button.on { border-color: var(--accent); background: var(--accent-soft); }
-  .panel { background: var(--bg); border: 1px solid var(--line); border-radius: 18px; padding: 20px; width: 100%; max-width: 520px; margin-top: 4vh; }
-  .panel h2 { font-family: Fraunces, serif; font-weight: 400; margin: 0 0 16px; font-size: 22px; }
-  label { display: block; font-size: 13px; color: var(--ink-soft); margin: 14px 0 6px; font-weight: 500; }
-  .panel input, .panel textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-size: 16px; }
-  .panel textarea { min-height: 110px; resize: vertical; }
-  .panel textarea.big { min-height: 240px; font-size: 14px; line-height: 1.45; }
-  .hint { font-size: 12px; color: var(--ink-soft); margin-top: 4px; }
-  .row { display: flex; gap: 8px; justify-content: space-between; margin-top: 20px; flex-wrap: wrap; }
-  .btn { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: none; color: var(--ink); font: inherit; cursor: pointer; }
-  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+
+  /* ---------- Settings page ---------- */
+  #settings { position: fixed; inset: 0; z-index: 20; background: var(--bg); display: flex; flex-direction: column;
+    transform: translateX(100%); visibility: hidden; transition: transform .3s cubic-bezier(.2,.8,.2,1), visibility 0s .3s; }
+  #settings.open { transform: none; visibility: visible; transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+  .page-head { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; padding: max(10px, env(safe-area-inset-top)) 12px 10px; border-bottom: 1px solid var(--line); }
+  .page-head h1 { margin: 0; font-size: 17px; font-weight: 600; }
+  .back { justify-self: start; background: none; border: 0; color: var(--accent); font-size: 17px; padding: 6px 4px; cursor: pointer; }
+  .page-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+  .page-inner { max-width: 640px; margin: 0 auto; padding: 8px 16px calc(40px + env(safe-area-inset-bottom)); }
+  .group-title { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin: 26px 4px 8px; font-weight: 600; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 2px 14px 14px; }
+  .card + .card { margin-top: 10px; }
+  .sub { font-size: 13px; font-weight: 600; margin: 14px 0 2px; }
+  label.f { display: block; font-size: 13px; color: var(--ink-soft); margin: 14px 0 6px; font-weight: 500; }
+  .card input[type=text], .card input[type=url], .card input[type=password], .card textarea {
+    width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg); color: var(--ink); font: inherit; font-size: 16px; outline: none; }
+  .card input:focus, .card textarea:focus { border-color: var(--accent); }
+  .card textarea { min-height: 110px; resize: vertical; }
+  .card textarea.big { min-height: 240px; font-size: 14px; line-height: 1.45; }
+  .hint { font-size: 12px; color: var(--ink-soft); margin-top: 5px; }
+
+  .seg { display: flex; gap: 6px; background: var(--bg); padding: 4px; border-radius: 12px; border: 1px solid var(--line); }
+  .seg button { flex: 1; padding: 8px 6px; border-radius: 9px; border: 0; background: none; cursor: pointer; font-size: 14px; }
+  .seg button.on { background: var(--accent); color: #fff; }
+
+  .line { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 0 0; }
+  .line > span { font-size: 15px; }
+  .line output { color: var(--ink-soft); font-variant-numeric: tabular-nums; font-size: 14px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); margin: 8px 0 0; }
+  input.tgl { appearance: none; -webkit-appearance: none; width: 46px; height: 28px; border-radius: 999px; background: var(--line); position: relative; cursor: pointer; transition: background .2s; flex: none; margin: 0; }
+  input.tgl::after { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: transform .2s; }
+  input.tgl:checked { background: var(--accent); }
+  input.tgl:checked::after { transform: translateX(18px); }
+  input[type=color] { -webkit-appearance: none; appearance: none; width: 44px; height: 32px; border: 1px solid var(--line); border-radius: 9px; padding: 0; background: none; cursor: pointer; }
+  input[type=color]::-webkit-color-swatch-wrapper { padding: 3px; }
+  input[type=color]::-webkit-color-swatch { border: 0; border-radius: 6px; }
+
+  .fonts { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 8px; margin-top: 10px; }
+  .fonts button { padding: 12px 8px; border-radius: 11px; border: 1px solid var(--line); background: var(--bg); cursor: pointer; font-size: 17px; line-height: 1.2; text-align: center; }
+  .fonts button.on { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .presets { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+  .presets button { width: 40px; height: 40px; border-radius: 50%; border: 2px solid var(--bg); box-shadow: 0 0 0 1px var(--line); cursor: pointer; }
+  .colors { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 12px; }
+  .colors label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); }
+  .gradbar { height: 10px; border-radius: 999px; margin-top: 12px; background: linear-gradient(90deg, var(--c1), var(--c2)); }
+
+  .preview { background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg)); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .preview .msg { max-width: 100%; }
+  .btn { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: none; cursor: pointer; }
   .btn.danger { color: var(--accent); }
+  .actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 14px; }
+  [hidden] { display: none !important; }
 </style>
 </head>
-<body>
-<header>
+<body data-color="theme">
+<header class="top">
   <div class="brand"><span class="pulse" id="pulse"></span><span id="aiName">Nearly</span></div>
-  <button class="icon-btn" id="openSettings" type="button">Settings</button>
+  <button class="pill" id="openSettings" type="button">Settings</button>
 </header>
 
 <main id="scroller"><div id="log"></div></main>
@@ -105,69 +178,260 @@
 </form>
 
 <div id="onboard">
-  <div class="choices">
-    <button class="choice" type="button" data-gender="female">Female</button>
-    <button class="choice" type="button" data-gender="male">Male</button>
-  </div>
+  <button class="choice" type="button" data-gender="female">Female</button>
+  <button class="choice" type="button" data-gender="male">Male</button>
 </div>
 
-<div id="settings" role="dialog" aria-modal="true">
-  <div class="panel">
-    <h2>Settings</h2>
+<div id="lightbox"><img alt=""></div>
 
-    <label for="proxyUrl">Proxy URL</label>
-    <input id="proxyUrl" type="url" placeholder="https://your-proxy.example.com/api/v1">
-    <div class="hint">OpenAI-compatible endpoint. <code>/chat/completions</code> is appended automatically.</div>
+<section id="settings" aria-label="Settings">
+  <div class="page-head">
+    <button class="back" id="closeSettings" type="button">‹ Back</button>
+    <h1>Settings</h1>
+    <span></span>
+  </div>
+  <div class="page-body"><div class="page-inner">
 
-    <label for="apiKey">API key</label>
-    <input id="apiKey" type="password" placeholder="sk-or-…" autocomplete="off">
-
-    <label for="model">Model</label>
-    <input id="model" type="text" placeholder="anthropic/claude-sonnet-4.5">
-
-    <label>Gender</label>
-    <div class="seg" id="genderSeg">
-      <button type="button" data-gender="female">Female</button>
-      <button type="button" data-gender="male">Male</button>
+    <!-- Chat proxy -->
+    <div class="group-title">Proxy</div>
+    <div class="card">
+      <label class="f" for="proxyUrl">Proxy URL</label>
+      <input id="proxyUrl" data-k="proxyUrl" type="url" placeholder="https://your-proxy.example.com/api/v1" autocapitalize="off" autocorrect="off">
+      <div class="hint">OpenAI-compatible. <code>/chat/completions</code> is appended automatically.</div>
+      <label class="f" for="apiKey">API key</label>
+      <input id="apiKey" data-k="apiKey" type="password" placeholder="sk-or-…" autocomplete="off">
+      <label class="f" for="model">Model</label>
+      <input id="model" data-k="model" type="text" placeholder="anthropic/claude-sonnet-4.5" autocapitalize="off" autocorrect="off">
     </div>
 
-    <label for="systemPrompt">System prompt</label>
-    <textarea id="systemPrompt" class="big" placeholder="Paste your complete system prompt here."></textarea>
-    <div class="hint">Sent with every message.</div>
+    <!-- Image proxy -->
+    <div class="group-title">Image proxy</div>
+    <div class="card">
+      <label class="f" for="imgUrl">Proxy URL</label>
+      <input id="imgUrl" data-k="imgUrl" type="url" placeholder="https://your-proxy.example.com/api/v1" autocapitalize="off" autocorrect="off">
+      <div class="hint">Used only when you explicitly ask for an image. Chat-style endpoints (OpenRouter image models) and <code>/images/generations</code> both work.</div>
+      <label class="f" for="imgKey">API key</label>
+      <input id="imgKey" data-k="imgKey" type="password" placeholder="sk-or-…" autocomplete="off">
+      <label class="f" for="imgModel">Model</label>
+      <input id="imgModel" data-k="imgModel" type="text" placeholder="google/gemini-2.5-flash-image" autocapitalize="off" autocorrect="off">
+    </div>
 
-    <label for="persona">Personality</label>
-    <textarea id="persona" placeholder="e.g. A bit of a tease, loves jazz, asks strange questions."></textarea>
-    <div class="hint">Optional. Appended after the system prompt.</div>
-
-    <div class="row">
-      <button class="btn danger" id="clearChat" type="button">Clear conversation</button>
-      <div style="display:flex;gap:8px">
-        <button class="btn" id="closeSettings" type="button">Close</button>
-        <button class="btn primary" id="saveSettings" type="button">Save</button>
+    <!-- Prompt -->
+    <div class="group-title">Prompt</div>
+    <div class="card">
+      <label class="f">Gender</label>
+      <div class="seg" data-k="gender">
+        <button type="button" data-v="female">Female</button>
+        <button type="button" data-v="male">Male</button>
       </div>
+      <label class="f" for="systemPrompt">System prompt</label>
+      <textarea id="systemPrompt" data-k="systemPrompt" class="big" placeholder="Paste your complete system prompt here."></textarea>
+      <div class="hint">Sent with every message.</div>
+      <label class="f" for="persona">Personality</label>
+      <textarea id="persona" data-k="persona" placeholder="e.g. A bit of a tease, loves jazz."></textarea>
+      <div class="hint">Optional. Appended after the system prompt.</div>
     </div>
-  </div>
-</div>
+
+    <!-- Customization -->
+    <div class="group-title">Customization</div>
+    <div class="preview" id="preview">
+      <div class="msg me">Can't sleep. Talk to me?</div>
+      <div class="msg ai"><span class="txt">Of course. I was just thinking about how rain sounds different at night.</span></div>
+    </div>
+
+    <div class="card" style="margin-top:10px">
+      <div class="sub">Appearance</div>
+      <label class="f">Mode</label>
+      <div class="seg" data-k="theme">
+        <button type="button" data-v="original">Original</button>
+        <button type="button" data-v="light">Light</button>
+        <button type="button" data-v="dark">Dark</button>
+      </div>
+      <div class="line"><span>Accent color</span><span style="display:flex;gap:8px;align-items:center">
+        <button class="btn" type="button" id="accentReset" style="padding:5px 10px;font-size:13px">Default</button>
+        <input type="color" data-k="accent" id="accent"></span></div>
+      <div class="line"><span>AI message bubble</span><input type="checkbox" class="tgl" data-k="aiBubble"></div>
+    </div>
+
+    <div class="card">
+      <div class="sub">Fonts</div>
+      <label class="f">Apply to</label>
+      <div class="seg" id="fontTarget">
+        <button type="button" data-v="aiFont" class="on">AI</button>
+        <button type="button" data-v="meFont">You</button>
+      </div>
+      <div class="fonts" id="fonts"></div>
+    </div>
+
+    <div class="card">
+      <div class="sub">AI text</div>
+      <div class="line"><span>Size</span><output data-out="fs"></output></div>
+      <input type="range" data-k="fs" min="13" max="28" step="1">
+      <div class="line"><span>Boldness</span><output data-out="fw"></output></div>
+      <input type="range" data-k="fw" min="300" max="700" step="100">
+      <div class="line"><span>Line height</span><output data-out="lh"></output></div>
+      <input type="range" data-k="lh" min="1.2" max="2.2" step="0.05">
+      <div class="line"><span>Letter spacing</span><output data-out="ls"></output></div>
+      <input type="range" data-k="ls" min="-0.03" max="0.12" step="0.01">
+      <div class="line"><span>Italic</span><input type="checkbox" class="tgl" data-k="italic"></div>
+      <div class="line"><span>Underlined</span><input type="checkbox" class="tgl" data-k="underline"></div>
+      <div class="line"><span>Glow</span><input type="checkbox" class="tgl" data-k="glow"></div>
+    </div>
+
+    <div class="card">
+      <div class="sub">AI text color</div>
+      <div class="seg" data-k="colorMode" style="margin-top:10px">
+        <button type="button" data-v="theme">Theme</button>
+        <button type="button" data-v="solid">Solid</button>
+        <button type="button" data-v="gradient">Gradient</button>
+      </div>
+      <div id="colorControls">
+        <div class="colors">
+          <label>Color <input type="color" data-k="c1"></label>
+          <label data-grad>to <input type="color" data-k="c2"></label>
+        </div>
+        <div data-grad>
+          <div class="gradbar" id="gradbar"></div>
+          <div class="line"><span>Angle</span><output data-out="angle"></output></div>
+          <input type="range" data-k="angle" min="0" max="360" step="5">
+          <div class="presets" id="presets"></div>
+        </div>
+      </div>
+      <div class="actions"><button class="btn" type="button" id="resetLook">Reset customization</button></div>
+    </div>
+
+    <!-- Conversation -->
+    <div class="group-title">Conversation</div>
+    <div class="card">
+      <div class="actions"><button class="btn danger" id="clearChat" type="button">Clear conversation</button></div>
+      <div class="hint">Also clears the AI's chosen name and generated images.</div>
+    </div>
+
+  </div></div>
+</section>
 
 <script>
+// ---------- Fonts ----------
+const FONTS = {
+  'Fraunces':           { css: "'Fraunces', Georgia, serif",                g: 'Fraunces:wght@300..700' },
+  'Inter':              { css: "'Inter', system-ui, sans-serif",           g: 'Inter:wght@300..800' },
+  'Lora':               { css: "'Lora', Georgia, serif",                   g: 'Lora:wght@400..700' },
+  'Playfair Display':   { css: "'Playfair Display', Georgia, serif",       g: 'Playfair+Display:wght@400..800' },
+  'Merriweather':       { css: "'Merriweather', Georgia, serif",           g: 'Merriweather:wght@300;400;700' },
+  'Cormorant Garamond': { css: "'Cormorant Garamond', Georgia, serif",     g: 'Cormorant+Garamond:wght@300;400;500;600;700' },
+  'Libre Baskerville':  { css: "'Libre Baskerville', Georgia, serif",      g: 'Libre+Baskerville:wght@400;700' },
+  'Nunito':             { css: "'Nunito', system-ui, sans-serif",          g: 'Nunito:wght@300..800' },
+  'Poppins':            { css: "'Poppins', system-ui, sans-serif",         g: 'Poppins:wght@300;400;500;600;700' },
+  'DM Sans':            { css: "'DM Sans', system-ui, sans-serif",         g: 'DM+Sans:wght@300..700' },
+  'Space Grotesk':      { css: "'Space Grotesk', system-ui, sans-serif",   g: 'Space+Grotesk:wght@300..700' },
+  'Quicksand':          { css: "'Quicksand', system-ui, sans-serif",       g: 'Quicksand:wght@300..700' },
+  'Comfortaa':          { css: "'Comfortaa', system-ui, sans-serif",       g: 'Comfortaa:wght@300..700' },
+  'Josefin Sans':       { css: "'Josefin Sans', system-ui, sans-serif",    g: 'Josefin+Sans:wght@300..700' },
+  'Caveat':             { css: "'Caveat', cursive",                        g: 'Caveat:wght@400..700' },
+  'JetBrains Mono':     { css: "'JetBrains Mono', ui-monospace, monospace", g: 'JetBrains+Mono:wght@300..700' },
+  'System':             { css: "-apple-system, system-ui, sans-serif" },
+  'Rounded':            { css: "ui-rounded, 'SF Pro Rounded', system-ui, sans-serif" },
+  'New York':           { css: "ui-serif, 'New York', Georgia, serif" },
+  'Mono':               { css: "ui-monospace, 'SF Mono', Menlo, monospace" },
+};
+const loadedFonts = new Set();
+function loadFonts(names) {
+  const fams = names.filter(n => FONTS[n]?.g && !loadedFonts.has(n));
+  if (!fams.length) return;
+  fams.forEach(n => loadedFonts.add(n));
+  const l = document.createElement('link');
+  l.rel = 'stylesheet';
+  l.href = 'https://fonts.googleapis.com/css2?' + fams.map(n => 'family=' + FONTS[n].g).join('&') + '&display=swap';
+  document.head.appendChild(l);
+}
 
+const GRADIENTS = [
+  ['#ff7a59', '#c13584', 135], ['#00c6ff', '#0072ff', 135], ['#43e97b', '#38f9d7', 120],
+  ['#f6d365', '#fda085', 135], ['#a18cd1', '#fbc2eb', 135], ['#fc466b', '#3f5efb', 90],
+  ['#f7971e', '#ffd200', 90], ['#8e2de2', '#4a00e0', 135], ['#00f5a0', '#00d9f5', 90],
+];
+
+// ---------- State ----------
 const $ = id => document.getElementById(id);
 const store = {
   get(k, d) { try { const v = localStorage.getItem('nearly.' + k); return v === null ? d : JSON.parse(v); } catch { return d; } },
   set(k, v) { try { localStorage.setItem('nearly.' + k, JSON.stringify(v)); } catch {} }
 };
-
-let cfg = { proxyUrl: '', apiKey: '', model: '', systemPrompt: '', persona: '', gender: '', ...store.get('cfg', {}) };
+const LOOK_DEFAULTS = {
+  theme: 'original', accent: '', aiBubble: false,
+  aiFont: 'Fraunces', meFont: 'Inter',
+  fs: 18, fw: 300, lh: 1.6, ls: 0, italic: false, underline: false, glow: false,
+  colorMode: 'theme', c1: '#ff7a59', c2: '#c13584', angle: 135,
+};
+const DEFAULTS = {
+  proxyUrl: '', apiKey: '', model: '',
+  imgUrl: '', imgKey: '', imgModel: '',
+  systemPrompt: '', persona: '', gender: '',
+  ...LOOK_DEFAULTS,
+};
+let cfg = { ...DEFAULTS, ...store.get('cfg', {}) };
 let history = store.get('history', []);
 let aiName = store.get('aiName', '');
 let busy = false;
+const saveCfg = () => store.set('cfg', cfg);
 
-function endpoint(base) {
-  base = base.trim().replace(/\/+$/, '');
-  return /\/chat\/completions$/.test(base) ? base : base + '/chat/completions';
+// ---------- Image storage (IndexedDB; localStorage is too small for images) ----------
+const idb = (() => {
+  let dbp;
+  const open = () => dbp ??= new Promise((res, rej) => {
+    const r = indexedDB.open('nearly', 1);
+    r.onupgradeneeded = () => r.result.createObjectStore('images');
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  });
+  const tx = async (mode, fn) => {
+    const db = await open();
+    return new Promise((res, rej) => {
+      const t = db.transaction('images', mode); const req = fn(t.objectStore('images'));
+      t.oncomplete = () => res(req?.result); t.onerror = () => rej(t.error);
+    });
+  };
+  return { get: k => tx('readonly', s => s.get(k)), put: (k, v) => tx('readwrite', s => s.put(v, k)), clear: () => tx('readwrite', s => s.clear()) };
+})();
+
+// ---------- Appearance ----------
+const darkMQ = matchMedia('(prefers-color-scheme: dark)');
+function isDark() { return cfg.theme === 'dark' || (cfg.theme === 'original' && darkMQ.matches); }
+
+function applyLook() {
+  const root = document.documentElement, s = root.style;
+  root.dataset.theme = cfg.theme;
+  document.querySelector('meta[name=color-scheme]').content = cfg.theme === 'original' ? 'light dark' : cfg.theme;
+  cfg.accent ? s.setProperty('--accent', cfg.accent) : s.removeProperty('--accent');
+
+  loadFonts([cfg.aiFont, cfg.meFont, 'Inter', 'Fraunces']);
+  s.setProperty('--ai-font', (FONTS[cfg.aiFont] || FONTS.Fraunces).css);
+  s.setProperty('--me-font', (FONTS[cfg.meFont] || FONTS.Inter).css);
+  s.setProperty('--fs', cfg.fs + 'px');
+  s.setProperty('--fw', cfg.fw);
+  s.setProperty('--lh', cfg.lh);
+  s.setProperty('--ls', cfg.ls + 'em');
+  s.setProperty('--fst', cfg.italic ? 'italic' : 'normal');
+  s.setProperty('--deco', cfg.underline ? 'underline' : 'none');
+  s.setProperty('--c1', cfg.c1); s.setProperty('--c2', cfg.c2); s.setProperty('--angle', cfg.angle + 'deg');
+  if (cfg.colorMode === 'theme') s.removeProperty('--glowc'); else s.setProperty('--glowc', cfg.c1);
+  document.body.dataset.color = cfg.colorMode;
+  document.body.classList.toggle('glow', cfg.glow);
+  document.body.classList.toggle('ai-bubble', cfg.aiBubble);
+  matchNative();
 }
 
-const NAME_TAG = /\[\[name:\s*([^\]]+?)\s*\]\]/i;
+// Keyboard + status bar follow the theme (native app only; no-op in a browser)
+function matchNative() {
+  const P = window.Capacitor?.Plugins; if (!P) return;
+  const dark = isDark();
+  P.Keyboard?.setStyle?.({ style: dark ? 'DARK' : 'LIGHT' }).catch?.(() => {});
+  P.StatusBar?.setStyle?.({ style: dark ? 'DARK' : 'LIGHT' }).catch?.(() => {});
+}
+darkMQ.addEventListener?.('change', applyLook);
+
+// ---------- Prompt ----------
+const TAG = /\[\[(name|image):\s*([^\]]+?)\s*\]\]/gi;
+const imageEnabled = () => !!(cfg.imgUrl.trim() && cfg.imgModel.trim());
 
 function identityPrompt() {
   const g = cfg.gender === 'male'
@@ -176,45 +440,106 @@ function identityPrompt() {
   const n = aiName
     ? `Your name is ${aiName}. You chose it; keep it. If you ever deliberately change it, append [[name:NewName]] at the very end of that message.`
     : 'You have not chosen a name yet. Pick one that truly fits the personality you are creating, early and naturally in the conversation. In the message where you first tell the user your name, append the tag [[name:YourName]] at the very end. The tag is hidden from the user; never mention it.';
-  return `--- Identity ---\n${g}\n${n}`;
+  const img = imageEnabled()
+    ? '\nYou can send images, but only when the user explicitly asks you for an image, picture, photo or drawing. Then reply briefly and naturally, and append [[image: a detailed description of the image to generate, in English]] at the very end of that message. The image appears below your message. Never do this unless explicitly asked; the tag is hidden from the user.'
+    : '';
+  return `--- Identity ---\n${g}\n${n}${img}`;
 }
 
 function buildMessages() {
   let system = [cfg.systemPrompt.trim(), identityPrompt()].filter(Boolean).join('\n\n');
   if (cfg.persona.trim()) system += `\n\n--- Personality notes ---\n${cfg.persona.trim()}`;
-  return [{ role: 'system', content: system }, ...history];
+  const msgs = history.map(m => ({ role: m.role, content: m.imgPrompt ? `${m.content}\n[[image: ${m.imgPrompt}]]` : m.content }));
+  return [{ role: 'system', content: system }, ...msgs];
 }
 
-// Strip the hidden name tag (and any half-streamed tag at the end)
 function visible(t, final) {
-  t = t.replace(new RegExp(NAME_TAG.source, 'gi'), '');
+  t = t.replace(TAG, '');
   if (!final) t = t.replace(/\[\[?[^\]]*$/, '');
   return t.trimEnd();
 }
+
+const endpoint = base => {
+  base = base.trim().replace(/\/+$/, '');
+  return /\/(chat\/completions|images\/generations)$/.test(base) ? base : base + '/chat/completions';
+};
+const authHeaders = key => ({ 'Content-Type': 'application/json', ...(key ? { Authorization: 'Bearer ' + key } : {}), 'X-Title': 'Nearly' });
+
+// ---------- Rendering ----------
+function scrollDown() { const s = $('scroller'); s.scrollTop = s.scrollHeight; }
 
 function addBubble(role, text) {
   $('log').querySelector('.empty')?.remove();
   const el = document.createElement('div');
   el.className = 'msg ' + role;
-  el.textContent = text;
+  if (role === 'ai') { const t = document.createElement('span'); t.className = 'txt'; t.textContent = text; el.appendChild(t); }
+  else el.textContent = text;
   $('log').appendChild(el);
   scrollDown();
   return el;
 }
-function scrollDown() { const s = $('scroller'); s.scrollTop = s.scrollHeight; }
+const setText = (bubble, text) => { bubble.querySelector('.txt').textContent = text; };
+
+function addFigure(bubble) {
+  const f = document.createElement('figure'); f.className = 'gen';
+  f.innerHTML = '<div class="wait">Making an image…</div>';
+  bubble.appendChild(f); scrollDown();
+  return f;
+}
+function showImage(fig, src) {
+  const img = new Image(); img.alt = ''; img.src = src;
+  img.onload = scrollDown;
+  img.onclick = () => { $('lightbox').querySelector('img').src = src; $('lightbox').classList.add('open'); };
+  fig.replaceChildren(img);
+}
 
 function render() {
   $('log').innerHTML = '';
   if (!history.length) {
-    const e = document.createElement('div');
-    e.className = 'empty';
-    e.textContent = 'Hi. I\'m here.';
+    const e = document.createElement('div'); e.className = 'empty'; e.textContent = "Hi. I'm here.";
     $('log').appendChild(e);
   }
-  for (const m of history) addBubble(m.role === 'user' ? 'me' : 'ai', m.content);
+  for (const m of history) {
+    const b = addBubble(m.role === 'user' ? 'me' : 'ai', m.content);
+    if (m.img) { const f = addFigure(b); idb.get(m.img).then(src => src ? showImage(f, src) : f.remove()).catch(() => f.remove()); }
+  }
   $('aiName').textContent = aiName || 'Nearly';
 }
 
+// ---------- Image generation ----------
+async function generateImage(prompt) {
+  const url = endpoint(cfg.imgUrl);
+  const imagesApi = /images\/generations$/.test(url);
+  const body = imagesApi
+    ? { model: cfg.imgModel, prompt, n: 1 }
+    : { model: cfg.imgModel, messages: [{ role: 'user', content: prompt }], modalities: ['image', 'text'] };
+  const res = await fetch(url, { method: 'POST', headers: authHeaders(cfg.imgKey), body: JSON.stringify(body) });
+  if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${(await res.text()).slice(0, 300)}`);
+  const j = await res.json();
+  if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
+
+  if (imagesApi) {
+    const d = j.data?.[0];
+    if (d?.b64_json) return 'data:image/png;base64,' + d.b64_json;
+    if (d?.url) return d.url;
+  } else {
+    const m = j.choices?.[0]?.message || {};
+    const im = m.images?.[0];
+    const fromImages = im?.image_url?.url || im?.url;
+    if (fromImages) return fromImages;
+    if (Array.isArray(m.content)) {
+      const part = m.content.find(p => p.type === 'image_url' || p.image_url);
+      if (part) return part.image_url?.url || part.image_url;
+    }
+    if (typeof m.content === 'string') {
+      const hit = m.content.match(/data:image\/[a-z]+;base64,[A-Za-z0-9+/=]+/) || m.content.match(/https?:\/\/\S+\.(?:png|jpe?g|webp|gif)(?:\?\S*)?/i);
+      if (hit) return hit[0];
+    }
+  }
+  throw new Error('The image model returned no image.');
+}
+
+// ---------- Chat ----------
 async function send(text) {
   if (!cfg.proxyUrl || !cfg.model) { openSettings(); return; }
   busy = true; $('send').disabled = true; $('pulse').classList.add('live');
@@ -227,45 +552,56 @@ async function send(text) {
 
   try {
     const res = await fetch(endpoint(cfg.proxyUrl), {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        ...(cfg.apiKey ? { 'Authorization': 'Bearer ' + cfg.apiKey } : {}),
-        'X-Title': 'Nearly'
-      },
+      method: 'POST', headers: authHeaders(cfg.apiKey),
       body: JSON.stringify({ model: cfg.model, messages: buildMessages(), stream: true, temperature: 0.9 })
     });
     if (!res.ok) throw new Error(`${res.status} ${res.statusText} — ${(await res.text()).slice(0, 300)}`);
 
-    const reader = res.body.getReader();
-    const dec = new TextDecoder();
-    let buf = '';
+    const reader = res.body.getReader(); const dec = new TextDecoder(); let buf = '';
     while (true) {
       const { done, value } = await reader.read();
       if (done) break;
       buf += dec.decode(value, { stream: true });
-      const lines = buf.split('\n');
-      buf = lines.pop();
+      const lines = buf.split('\n'); buf = lines.pop();
       for (const line of lines) {
         const l = line.trim();
-        if (!l.startsWith('data:')) continue; // skips ": OPENROUTER PROCESSING" keep-alives
+        if (!l.startsWith('data:')) continue;
         const data = l.slice(5).trim();
         if (data === '[DONE]') continue;
         try {
           const j = JSON.parse(data);
           if (j.error) throw new Error(j.error.message || JSON.stringify(j.error));
           const delta = j.choices?.[0]?.delta?.content ?? '';
-          if (delta) { reply += delta; bubble.textContent = visible(reply); scrollDown(); }
+          if (delta) { reply += delta; setText(bubble, visible(reply)); scrollDown(); }
         } catch (e) { if (e instanceof SyntaxError) continue; throw e; }
       }
     }
     if (!reply) throw new Error('Received an empty response.');
-    const tag = reply.match(NAME_TAG);
-    if (tag) { aiName = tag[1].replace(/[^\p{L}\p{M}' -]/gu, '').trim().slice(0, 30) || aiName; store.set('aiName', aiName); $('aiName').textContent = aiName; }
-    const clean = visible(reply, true);
-    bubble.textContent = clean;
-    history.push({ role: 'assistant', content: clean });
-    store.set('history', history);
+
+    let imgPrompt = '';
+    for (const [, kind, val] of reply.matchAll(TAG)) {
+      if (kind.toLowerCase() === 'name') {
+        aiName = val.replace(/[^\p{L}\p{M}' -]/gu, '').trim().slice(0, 30) || aiName;
+        store.set('aiName', aiName); $('aiName').textContent = aiName;
+      } else imgPrompt = val;
+    }
+    const msg = { role: 'assistant', content: visible(reply, true) };
+    setText(bubble, msg.content);
+    history.push(msg); store.set('history', history);
+
+    if (imgPrompt) {
+      const fig = addFigure(bubble);
+      if (!imageEnabled()) { fig.remove(); addBubble('err', 'Image requested, but no image proxy is set up in Settings.'); }
+      else {
+        try {
+          const src = await generateImage(imgPrompt);
+          const id = 'img_' + Date.now();
+          await idb.put(id, src).catch(() => {});
+          msg.img = id; msg.imgPrompt = imgPrompt; store.set('history', history);
+          showImage(fig, src);
+        } catch (e) { fig.remove(); addBubble('err', 'Image failed: ' + e.message); }
+      }
+    }
   } catch (e) {
     if (!reply) { bubble.remove(); history.pop(); store.set('history', history); }
     addBubble('err', 'Something went wrong: ' + e.message);
@@ -275,27 +611,87 @@ async function send(text) {
   }
 }
 
-// ---- UI wiring ----
+// ---------- Settings page ----------
+let fontTarget = 'aiFont';
+
+function syncControls() {
+  for (const el of document.querySelectorAll('#settings [data-k]')) {
+    const k = el.dataset.k, v = cfg[k];
+    if (el.classList.contains('seg')) for (const b of el.children) b.classList.toggle('on', b.dataset.v === v);
+    else if (el.type === 'checkbox') el.checked = !!v;
+    else if (el.type === 'color') el.value = k === 'accent' ? (v || getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#d9553b') : v;
+    else if (document.activeElement !== el) el.value = v;
+  }
+  const outs = { fs: cfg.fs + 'px', fw: cfg.fw, lh: (+cfg.lh).toFixed(2), ls: (+cfg.ls).toFixed(2) + 'em', angle: cfg.angle + '°' };
+  for (const o of document.querySelectorAll('[data-out]')) o.textContent = outs[o.dataset.out];
+  for (const b of $('fonts').children) b.classList.toggle('on', b.dataset.font === cfg[fontTarget]);
+  $('colorControls').hidden = cfg.colorMode === 'theme';
+  for (const g of document.querySelectorAll('[data-grad]')) g.hidden = cfg.colorMode !== 'gradient';
+}
+
+function update(k, v) {
+  cfg[k] = v; saveCfg(); applyLook(); syncControls();
+  if (k === 'gender') render();
+}
+
+function buildSettings() {
+  // font grid
+  $('fonts').innerHTML = '';
+  for (const name of Object.keys(FONTS)) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.dataset.font = name; b.textContent = name; b.style.fontFamily = FONTS[name].css;
+    b.onclick = () => update(fontTarget, name);
+    $('fonts').appendChild(b);
+  }
+  // gradient presets
+  for (const [a, c, ang] of GRADIENTS) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.style.background = `linear-gradient(${ang}deg, ${a}, ${c})`; b.setAttribute('aria-label', 'Gradient preset');
+    b.onclick = () => { cfg.c1 = a; cfg.c2 = c; update('angle', ang); };
+    $('presets').appendChild(b);
+  }
+  // generic bindings
+  for (const el of document.querySelectorAll('#settings [data-k]')) {
+    const k = el.dataset.k;
+    if (el.classList.contains('seg')) el.onclick = e => { const v = e.target.dataset?.v; if (v) update(k, v); };
+    else if (el.type === 'checkbox') el.onchange = () => update(k, el.checked);
+    else if (el.type === 'range') el.oninput = () => update(k, Number(el.value));
+    else el.oninput = () => update(k, el.type === 'color' ? el.value : el.value);
+  }
+  for (const k of ['proxyUrl', 'apiKey', 'model', 'imgUrl', 'imgKey', 'imgModel'])
+    $(k).addEventListener('change', () => update(k, $(k).value.trim()));
+
+  $('fontTarget').onclick = e => {
+    const v = e.target.dataset?.v; if (!v) return;
+    fontTarget = v;
+    for (const b of $('fontTarget').children) b.classList.toggle('on', b.dataset.v === v);
+    syncControls();
+  };
+  $('accentReset').onclick = () => update('accent', '');
+  $('resetLook').onclick = () => { if (confirm('Reset all customization?')) { Object.assign(cfg, LOOK_DEFAULTS); update('theme', cfg.theme); } };
+  $('clearChat').onclick = async () => {
+    if (!confirm('Clear the entire conversation?')) return;
+    history = []; aiName = ''; store.set('history', history); store.set('aiName', '');
+    await idb.clear().catch(() => {});
+    render(); closeSettings();
+  };
+}
+
 function openSettings() {
-  $('proxyUrl').value = cfg.proxyUrl; $('apiKey').value = cfg.apiKey;
-  $('model').value = cfg.model; $('persona').value = cfg.persona; $('systemPrompt').value = cfg.systemPrompt;
-  pendingGender = cfg.gender; paintSeg();
+  loadFonts(Object.keys(FONTS));
+  syncControls();
   $('settings').classList.add('open');
 }
-function closeSettings() { $('settings').classList.remove('open'); }
-let pendingGender = cfg.gender;
-function paintSeg() { for (const b of $('genderSeg').children) b.classList.toggle('on', b.dataset.gender === pendingGender); }
-$('genderSeg').onclick = e => { const g = e.target.dataset?.gender; if (g) { pendingGender = g; paintSeg(); } };
+function closeSettings() { document.activeElement?.blur(); $('settings').classList.remove('open'); }
 
 $('openSettings').onclick = openSettings;
 $('closeSettings').onclick = closeSettings;
-$('settings').onclick = e => { if (e.target.id === 'settings') closeSettings(); };
-$('saveSettings').onclick = () => {
-  cfg = { proxyUrl: $('proxyUrl').value.trim(), apiKey: $('apiKey').value.trim(), model: $('model').value.trim(), systemPrompt: $('systemPrompt').value, persona: $('persona').value, gender: pendingGender || cfg.gender };
-  store.set('cfg', cfg); closeSettings(); render();
-};
-$('clearChat').onclick = () => { if (confirm('Clear the entire conversation?')) { history = []; aiName = ''; store.set('history', history); store.set('aiName', ''); render(); closeSettings(); } };
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { $('lightbox').classList.remove('open'); closeSettings(); }
+});
+$('lightbox').onclick = () => $('lightbox').classList.remove('open');
 
+// ---------- Composer ----------
 const input = $('input');
 input.addEventListener('input', () => { input.style.height = 'auto'; input.style.height = Math.min(input.scrollHeight, 180) + 'px'; });
 input.addEventListener('keydown', e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); $('composer').requestSubmit(); } });
@@ -307,15 +703,20 @@ $('composer').onsubmit = e => {
   send(t);
 };
 
+// ---------- Boot ----------
 for (const b of document.querySelectorAll('#onboard .choice')) b.onclick = () => {
-  cfg.gender = b.dataset.gender; store.set('cfg', cfg);
+  update('gender', b.dataset.gender);
   $('onboard').classList.remove('open');
   if (!cfg.proxyUrl || !cfg.model) openSettings();
 };
 
+buildSettings();
+applyLook();
 render();
 if (!cfg.gender) $('onboard').classList.add('open');
 else if (!cfg.proxyUrl || !cfg.model) openSettings();
+document.addEventListener('deviceready', matchNative);
+setTimeout(matchNative, 300);
 </script>
 </body>
 </html>

@@ -5,11 +5,11 @@ An AI companion in the spirit of *Her*: warm, curious, and always aware that it 
 ## Usage
 1. Open `index.html` in your browser (or host it statically).
 2. On first launch, pick **Female** or **Male**.
-3. Fill in **Settings**:
-   - **Proxy URL** — OpenAI-compatible endpoint, e.g. `https://your-proxy/api/v1` (`/chat/completions` is appended automatically)
-   - **API key** — your OpenRouter key (leave empty if your proxy adds the key itself)
-   - **Model** — e.g. `anthropic/claude-sonnet-4.5`
-   - **Personality** — optional; sent after the fixed base prompt
+3. Fill in **Settings** (full-screen page):
+   - **Proxy** — chat endpoint: URL (OpenAI-compatible, `/chat/completions` appended automatically), API key, model
+   - **Image proxy** — URL, API key, model. Only used when you explicitly ask for an image. Works with OpenRouter image models (chat endpoint with `modalities`) and `/images/generations` endpoints
+   - **Prompt** — gender, your full system prompt, optional personality notes
+   - **Customization** — Original / Light / Dark (OLED) mode (keyboard + status bar follow it in the iOS app), accent color, 20 fonts for AI and your messages, size, boldness, line height, letter spacing, italic, underline, glow, solid or gradient text color with presets
 4. Talk.
 
 You paste your own **System prompt** in Settings; it is sent with every request, followed by a short identity block (gender + name handling) and your optional Personality notes. The AI picks its own name, which appears in the header. "Clear conversation" also clears the name, so a new personality starts fresh. Gender can be changed later in Settings.
