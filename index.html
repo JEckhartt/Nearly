@@ -93,9 +93,16 @@
     background: linear-gradient(110deg, var(--field) 30%, var(--accent-soft) 50%, var(--field) 70%); background-size: 250% 100%;
     animation: shimmer 1.6s linear infinite; display: grid; place-items: center; color: var(--ink-soft); font-size: 13px; }
   @keyframes shimmer { to { background-position: -150% 0; } }
-  #lightbox { position: fixed; inset: 0; z-index: 30; background: rgba(0,0,0,.92); display: none; align-items: center; justify-content: center; padding: 16px; }
-  #lightbox.open { display: flex; }
-  #lightbox img { max-width: 100%; max-height: 100%; border-radius: 10px; }
+  #lightbox { position: fixed; inset: 0; z-index: 30; background: #000; display: none; overflow: hidden; touch-action: none; user-select: none; -webkit-user-select: none; }
+  #lightbox.open { display: block; }
+  #lightbox .stage { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+  #lightbox img { max-width: 100%; max-height: 100%; transform-origin: 0 0; will-change: transform; -webkit-user-drag: none; -webkit-touch-callout: none; }
+  #lightbox .bar { position: absolute; left: 0; right: 0; display: flex; justify-content: space-between; padding: 0 16px; pointer-events: none; }
+  #lightbox .bar.top { top: max(12px, env(safe-area-inset-top)); }
+  #lightbox .bar.bottom { bottom: max(16px, env(safe-area-inset-bottom)); justify-content: center; }
+  #lightbox .bar button { pointer-events: auto; background: rgba(40,40,40,.75); color: #fff; border: 0; border-radius: 999px; padding: 10px 18px; font-size: 15px; cursor: pointer; backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); }
+  #toast { position: fixed; left: 50%; bottom: calc(90px + env(safe-area-inset-bottom)); transform: translateX(-50%) translateY(20px); z-index: 40; background: rgba(30,30,30,.9); color: #fff; padding: 10px 16px; border-radius: 999px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity .2s, transform .2s; }
+  #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 
   form#composer { max-width: 760px; width: 100%; margin: 0 auto; padding: 12px 16px calc(16px + env(safe-area-inset-bottom)); display: flex; gap: 8px; align-items: flex-end; }
   #input { flex: 1; resize: none; max-height: 180px; min-height: 46px; padding: 12px 16px; border-radius: 22px; border: 1px solid var(--line); background: var(--field); color: var(--ink); font: inherit; font-family: var(--me-font); outline: none; }
@@ -119,7 +126,18 @@
   .back { justify-self: start; background: none; border: 0; color: var(--accent); font-size: 17px; padding: 6px 4px; cursor: pointer; }
   .page-body { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
   .page-inner { max-width: 640px; margin: 0 auto; padding: 8px 16px calc(40px + env(safe-area-inset-bottom)); }
-  .group-title { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin: 26px 4px 8px; font-weight: 600; }
+  .group-title { font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-soft); margin: 0; padding: 18px 4px 10px; font-weight: 600; }
+  details > summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; -webkit-user-select: none; user-select: none; }
+  details > summary::-webkit-details-marker { display: none; }
+  details > summary::after { content: ''; width: 8px; height: 8px; border-right: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .2s; margin-right: 4px; opacity: .6; }
+  details[open] > summary::after { transform: rotate(45deg); }
+  details.sec { border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+  details.sec[open] { padding-bottom: 18px; }
+  details.sec > summary.group-title { font-size: 13px; }
+  details.fold { padding-bottom: 2px; }
+  details.fold[open] { padding-bottom: 14px; }
+  details.fold > summary.sub { margin: 0; padding: 14px 0 12px; }
+  .preview { position: sticky; top: 0; z-index: 2; margin-bottom: 10px; }
   .card { background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 2px 14px 14px; }
   .card + .card { margin-top: 10px; }
   .sub { font-size: 13px; font-weight: 600; margin: 14px 0 2px; }
@@ -156,7 +174,7 @@
   .colors label { display: flex; align-items: center; gap: 6px; font-size: 14px; color: var(--ink-soft); }
   .gradbar { height: 10px; border-radius: 999px; margin-top: 12px; background: linear-gradient(90deg, var(--c1), var(--c2)); }
 
-  .preview { background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg)); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+  .preview { box-shadow: 0 6px 18px -10px rgba(0,0,0,.35); background: radial-gradient(120% 80% at 50% 0%, var(--bg-2), var(--bg)); border: 1px solid var(--line); border-radius: 16px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
   .preview .msg { max-width: 100%; }
   .btn { padding: 10px 16px; border-radius: 999px; border: 1px solid var(--line); background: none; cursor: pointer; }
   .btn.danger { color: var(--accent); }
@@ -182,7 +200,12 @@
   <button class="choice" type="button" data-gender="male">Male</button>
 </div>
 
-<div id="lightbox"><img alt=""></div>
+<div id="lightbox">
+  <div class="stage"><img alt="" draggable="false"></div>
+  <div class="bar top"><button type="button" id="lbClose" aria-label="Close" style="width:44px;height:44px;padding:0">✕</button><span></span></div>
+  <div class="bar bottom"><button type="button" id="lbSave">Save to Photos</button></div>
+</div>
+<div id="toast"></div>
 
 <section id="settings" aria-label="Settings">
   <div class="page-head">
@@ -192,8 +215,8 @@
   </div>
   <div class="page-body"><div class="page-inner">
 
-    <!-- Chat proxy -->
-    <div class="group-title">Proxy</div>
+    <details class="sec" data-sec="proxy">
+    <summary class="group-title">Proxy</summary>
     <div class="card">
       <label class="f" for="proxyUrl">Proxy URL</label>
       <input id="proxyUrl" data-k="proxyUrl" type="url" placeholder="https://your-proxy.example.com/api/v1" autocapitalize="off" autocorrect="off">
@@ -203,9 +226,10 @@
       <label class="f" for="model">Model</label>
       <input id="model" data-k="model" type="text" placeholder="anthropic/claude-sonnet-4.5" autocapitalize="off" autocorrect="off">
     </div>
+    </details>
 
-    <!-- Image proxy -->
-    <div class="group-title">Image proxy</div>
+    <details class="sec" data-sec="image-proxy">
+    <summary class="group-title">Image proxy</summary>
     <div class="card">
       <label class="f" for="imgUrl">Proxy URL</label>
       <input id="imgUrl" data-k="imgUrl" type="url" placeholder="https://your-proxy.example.com/api/v1" autocapitalize="off" autocorrect="off">
@@ -215,9 +239,10 @@
       <label class="f" for="imgModel">Model</label>
       <input id="imgModel" data-k="imgModel" type="text" placeholder="google/gemini-2.5-flash-image" autocapitalize="off" autocorrect="off">
     </div>
+    </details>
 
-    <!-- Prompt -->
-    <div class="group-title">Prompt</div>
+    <details class="sec" data-sec="prompt">
+    <summary class="group-title">Prompt</summary>
     <div class="card">
       <label class="f">Gender</label>
       <div class="seg" data-k="gender">
@@ -231,16 +256,17 @@
       <textarea id="persona" data-k="persona" placeholder="e.g. A bit of a tease, loves jazz."></textarea>
       <div class="hint">Optional. Appended after the system prompt.</div>
     </div>
+    </details>
 
-    <!-- Customization -->
-    <div class="group-title">Customization</div>
+    <details class="sec" data-sec="customization">
+    <summary class="group-title">Customization</summary>
     <div class="preview" id="preview">
       <div class="msg me">Can't sleep. Talk to me?</div>
       <div class="msg ai"><span class="txt">Of course. I was just thinking about how rain sounds different at night.</span></div>
     </div>
 
-    <div class="card" style="margin-top:10px">
-      <div class="sub">Appearance</div>
+    <details class="card fold" data-sec="look-appearance">
+      <summary class="sub">Appearance</summary>
       <label class="f">Mode</label>
       <div class="seg" data-k="theme">
         <button type="button" data-v="original">Original</button>
@@ -251,20 +277,20 @@
         <button class="btn" type="button" id="accentReset" style="padding:5px 10px;font-size:13px">Default</button>
         <input type="color" data-k="accent" id="accent"></span></div>
       <div class="line"><span>AI message bubble</span><input type="checkbox" class="tgl" data-k="aiBubble"></div>
-    </div>
+    </details>
 
-    <div class="card">
-      <div class="sub">Fonts</div>
+    <details class="card fold" data-sec="look-fonts">
+      <summary class="sub">Fonts</summary>
       <label class="f">Apply to</label>
       <div class="seg" id="fontTarget">
         <button type="button" data-v="aiFont" class="on">AI</button>
         <button type="button" data-v="meFont">You</button>
       </div>
       <div class="fonts" id="fonts"></div>
-    </div>
+    </details>
 
-    <div class="card">
-      <div class="sub">AI text</div>
+    <details class="card fold" data-sec="look-ai-text">
+      <summary class="sub">AI text</summary>
       <div class="line"><span>Size</span><output data-out="fs"></output></div>
       <input type="range" data-k="fs" min="13" max="28" step="1">
       <div class="line"><span>Boldness</span><output data-out="fw"></output></div>
@@ -276,10 +302,10 @@
       <div class="line"><span>Italic</span><input type="checkbox" class="tgl" data-k="italic"></div>
       <div class="line"><span>Underlined</span><input type="checkbox" class="tgl" data-k="underline"></div>
       <div class="line"><span>Glow</span><input type="checkbox" class="tgl" data-k="glow"></div>
-    </div>
+    </details>
 
-    <div class="card">
-      <div class="sub">AI text color</div>
+    <details class="card fold" data-sec="look-ai-text-color">
+      <summary class="sub">AI text color</summary>
       <div class="seg" data-k="colorMode" style="margin-top:10px">
         <button type="button" data-v="theme">Theme</button>
         <button type="button" data-v="solid">Solid</button>
@@ -298,14 +324,16 @@
         </div>
       </div>
       <div class="actions"><button class="btn" type="button" id="resetLook">Reset customization</button></div>
-    </div>
+    </details>
+    </details>
 
-    <!-- Conversation -->
-    <div class="group-title">Conversation</div>
+    <details class="sec" data-sec="conversation">
+    <summary class="group-title">Conversation</summary>
     <div class="card">
       <div class="actions"><button class="btn danger" id="clearChat" type="button">Clear conversation</button></div>
       <div class="hint">Also clears the AI's chosen name and generated images.</div>
     </div>
+    </details>
 
   </div></div>
 </section>
@@ -489,7 +517,7 @@ function addFigure(bubble) {
 function showImage(fig, src) {
   const img = new Image(); img.alt = ''; img.src = src;
   img.onload = scrollDown;
-  img.onclick = () => { $('lightbox').querySelector('img').src = src; $('lightbox').classList.add('open'); };
+  img.onclick = () => openLightbox(src);
   fig.replaceChildren(img);
 }
 
@@ -677,6 +705,16 @@ function buildSettings() {
   };
 }
 
+// Collapsible sections remember their state
+function initFolds() {
+  const saved = store.get('folds', {});
+  for (const d of document.querySelectorAll('#settings details[data-sec]')) {
+    const k = d.dataset.sec;
+    d.open = k in saved ? saved[k] : (k === 'proxy' && !(cfg.proxyUrl && cfg.model));
+    d.addEventListener('toggle', () => { const f = store.get('folds', {}); f[k] = d.open; store.set('folds', f); });
+  }
+}
+
 function openSettings() {
   loadFonts(Object.keys(FONTS));
   syncControls();
@@ -687,9 +725,136 @@ function closeSettings() { document.activeElement?.blur(); $('settings').classLi
 $('openSettings').onclick = openSettings;
 $('closeSettings').onclick = closeSettings;
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') { $('lightbox').classList.remove('open'); closeSettings(); }
+  if (e.key === 'Escape') { closeLightbox(); closeSettings(); }
 });
-$('lightbox').onclick = () => $('lightbox').classList.remove('open');
+// ---------- Image viewer: pinch / pan / double-tap zoom ----------
+const lb = $('lightbox'), lbImg = lb.querySelector('img');
+const Z = { s: 1, tx: 0, ty: 0 };
+const ptrs = new Map();
+let gesture = null, lastTap = { t: 0, x: 0, y: 0 }, moved = false;
+
+function zApply(anim) {
+  lbImg.style.transition = anim ? 'transform .22s ease' : 'none';
+  lbImg.style.transform = `translate(${Z.tx}px, ${Z.ty}px) scale(${Z.s})`;
+}
+// Image layout box (untransformed), relative to viewport
+const base = () => ({ x: lbImg.offsetLeft + lbImg.offsetParent.offsetLeft, y: lbImg.offsetTop + lbImg.offsetParent.offsetTop, w: lbImg.offsetWidth, h: lbImg.offsetHeight });
+function zoomAround(px, py, s0, tx0, ty0, s1) {
+  const b = base();
+  const ux = (px - b.x - tx0) / s0, uy = (py - b.y - ty0) / s0;
+  return { s: s1, tx: px - b.x - s1 * ux, ty: py - b.y - s1 * uy };
+}
+function zClamp() {
+  if (Z.s <= 1.01) { Z.s = 1; Z.tx = 0; Z.ty = 0; return; }
+  const b = base(), vw = innerWidth, vh = innerHeight;
+  const w = b.w * Z.s, h = b.h * Z.s;
+  const clampAxis = (t, start, size, view) => {
+    const lo = size > view ? view - size - start : (view - size) / 2 - start;
+    const hi = size > view ? -start : (view - size) / 2 - start;
+    return Math.min(hi, Math.max(lo, t));
+  };
+  Z.tx = clampAxis(Z.tx, b.x, w, vw); Z.ty = clampAxis(Z.ty, b.y, h, vh);
+}
+function openLightbox(src) {
+  lbImg.src = src; Z.s = 1; Z.tx = 0; Z.ty = 0; zApply(false);
+  lb.classList.add('open');
+}
+function closeLightbox() { lb.classList.remove('open'); ptrs.clear(); gesture = null; }
+
+lb.addEventListener('pointerdown', e => {
+  if (e.target.closest('button')) return;
+  lb.setPointerCapture(e.pointerId);
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  moved = false;
+  const p = [...ptrs.values()];
+  if (p.length === 2) {
+    const mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
+    gesture = { type: 'pinch', d0: Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y), mx, my, s0: Z.s, tx0: Z.tx, ty0: Z.ty };
+  } else if (p.length === 1) {
+    gesture = { type: 'pan', x0: e.clientX, y0: e.clientY, tx0: Z.tx, ty0: Z.ty };
+  }
+});
+lb.addEventListener('pointermove', e => {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  const p = [...ptrs.values()];
+  if (gesture?.type === 'pinch' && p.length >= 2) {
+    moved = true;
+    const d = Math.hypot(p[0].x - p[1].x, p[0].y - p[1].y);
+    const mx = (p[0].x + p[1].x) / 2, my = (p[0].y + p[1].y) / 2;
+    const s1 = Math.min(8, Math.max(0.8, gesture.s0 * d / gesture.d0));
+    const z = zoomAround(gesture.mx, gesture.my, gesture.s0, gesture.tx0, gesture.ty0, s1);
+    Z.s = z.s; Z.tx = z.tx + (mx - gesture.mx); Z.ty = z.ty + (my - gesture.my);
+    zApply(false);
+  } else if (gesture?.type === 'pan') {
+    const dx = e.clientX - gesture.x0, dy = e.clientY - gesture.y0;
+    if (Math.hypot(dx, dy) > 6) moved = true;
+    if (Z.s > 1) { Z.tx = gesture.tx0 + dx; Z.ty = gesture.ty0 + dy; zApply(false); }
+    else if (moved) { lbImg.style.transition = 'none'; lbImg.style.transform = `translateY(${Math.max(0, dy)}px)`; lb.style.background = `rgba(0,0,0,${Math.max(.3, 1 - Math.max(0, dy) / 400)})`; }
+  }
+});
+function endPtr(e) {
+  if (!ptrs.has(e.pointerId)) return;
+  ptrs.delete(e.pointerId);
+  const wasPan = gesture?.type === 'pan';
+  if (ptrs.size === 1) { const [q] = ptrs.values(); gesture = { type: 'pan', x0: q.x, y0: q.y, tx0: Z.tx, ty0: Z.ty }; return; }
+  if (ptrs.size) return;
+  gesture = null;
+  lb.style.background = '';
+  // swipe down to close when not zoomed
+  if (wasPan && Z.s === 1 && moved) {
+    if (parseFloat((lbImg.style.transform.match(/translateY\(([-\d.]+)px/) || [])[1] || 0) > 120) return closeLightbox();
+    zApply(true); return;
+  }
+  if (!moved) {
+    const now = Date.now();
+    if (now - lastTap.t < 300 && Math.hypot(e.clientX - lastTap.x, e.clientY - lastTap.y) < 30) {
+      const z = Z.s > 1 ? { s: 1, tx: 0, ty: 0 } : zoomAround(e.clientX, e.clientY, Z.s, Z.tx, Z.ty, 2.5);
+      Object.assign(Z, z); zClamp(); zApply(true);
+      lastTap.t = 0; return;
+    }
+    lastTap = { t: now, x: e.clientX, y: e.clientY };
+    if (Z.s === 1 && e.target !== lbImg) setTimeout(() => { if (lastTap.t === now) closeLightbox(); }, 300);
+    return;
+  }
+  zClamp(); zApply(true);
+}
+lb.addEventListener('pointerup', endPtr);
+lb.addEventListener('pointercancel', endPtr);
+lb.addEventListener('wheel', e => { // trackpad / mouse zoom on desktop
+  e.preventDefault();
+  const s1 = Math.min(8, Math.max(1, Z.s * Math.exp(-e.deltaY / 300)));
+  Object.assign(Z, zoomAround(e.clientX, e.clientY, Z.s, Z.tx, Z.ty, s1)); zClamp(); zApply(false);
+}, { passive: false });
+$('lbClose').onclick = closeLightbox;
+$('lbSave').onclick = () => saveImage(lbImg.src);
+
+// ---------- Save to Photos ----------
+let toastTimer;
+function toast(msg) {
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+async function saveImage(src) {
+  const Media = window.Capacitor?.Plugins?.Media;
+  try {
+    if (Media?.savePhoto) {
+      await Media.savePhoto({ path: src });
+      return toast('Saved to Photos');
+    }
+    // Browser fallback: share sheet (has "Save Image" on iOS) or a download
+    const blob = await (await fetch(src)).blob();
+    const ext = (blob.type.split('/')[1] || 'png').replace('jpeg', 'jpg');
+    const file = new File([blob], `nearly-${Date.now()}.${ext}`, { type: blob.type || 'image/png' });
+    if (navigator.canShare?.({ files: [file] })) { await navigator.share({ files: [file] }); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = file.name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    toast('Downloaded');
+  } catch (e) {
+    if (e?.name === 'AbortError') return;
+    toast('Could not save: ' + (e?.message || e));
+  }
+}
 
 // ---------- Composer ----------
 const input = $('input');
@@ -711,6 +876,7 @@ for (const b of document.querySelectorAll('#onboard .choice')) b.onclick = () =>
 };
 
 buildSettings();
+initFolds();
 applyLook();
 render();
 if (!cfg.gender) $('onboard').classList.add('open');

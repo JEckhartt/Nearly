@@ -10,6 +10,7 @@
     "@capacitor/cli": "^8.6.2"
   },
   "dependencies": {
+    "@capacitor-community/media": "^9.1.0",
     "@capacitor/core": "^8.6.2",
     "@capacitor/ios": "^8.6.2",
     "@capacitor/keyboard": "^8.0.6",

@@ -64,6 +64,10 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Nearly saves images you choose to your photo library.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Nearly saves images you choose to your photo library.</string>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<true/>
 </dict>
